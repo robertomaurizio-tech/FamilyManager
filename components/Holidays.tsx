@@ -60,7 +60,7 @@ export default function HolidaysPage({ vacanze }: { vacanze: any[] }) {
           className="p-4 bg-emerald-600 text-white rounded-2xl shadow-lg hover:bg-emerald-700 transition-all flex items-center gap-2"
         >
           <Plus size={24} />
-          <span className="font-bold">{editingId ? 'Modifica Vacanza' : 'Nuova Vacanza'}</span>
+          <span className="font-bold hidden sm:inline">{editingId ? 'Modifica Vacanza' : 'Nuova Vacanza'}</span>
         </button>
       </header>
 
@@ -73,7 +73,7 @@ export default function HolidaysPage({ vacanze }: { vacanze: any[] }) {
             className="overflow-hidden"
           >
             <form onSubmit={handleSubmit} className="bg-emerald-50 p-8 rounded-3xl border border-emerald-100 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-xs font-bold text-emerald-700 uppercase ml-1">Nome Vacanza</label>
                   <div className="relative">
@@ -140,7 +140,7 @@ export default function HolidaysPage({ vacanze }: { vacanze: any[] }) {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {vacanze.map((v) => (
           <div key={v.id} className={cn(
             "group relative bg-white p-8 rounded-[2rem] border transition-all overflow-hidden",

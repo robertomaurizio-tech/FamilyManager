@@ -107,6 +107,27 @@ export default function Sidebar() {
           />
         )}
       </AnimatePresence>
+
+      {/* Mobile Bottom Nav */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-zinc-200 p-2 flex justify-around items-center lg:hidden z-50 shadow-lg">
+        {navigation.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              onClick={() => setIsOpen(false)}
+              className={cn(
+                "flex flex-col items-center gap-1 p-2 rounded-lg text-xs transition-all",
+                isActive ? "text-zinc-900" : "text-zinc-500 hover:text-zinc-700"
+              )}
+            >
+              <item.icon size={20} />
+              <span className="font-medium">{item.name}</span>
+            </Link>
+          );
+        })}
+      </div>
     </>
   );
 }

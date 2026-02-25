@@ -21,12 +21,12 @@ export default async function MonthlyDetailPage({ params }: { params: Promise<{ 
           <ArrowLeft size={24} />
         </Link>
         <div>
-          <h1 className="text-4xl font-display font-bold tracking-tight capitalize">{monthName}</h1>
+          <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight capitalize">{monthName}</h1>
           <p className="text-zinc-500 mt-1">Dettaglio analitico delle spese mensili.</p>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-zinc-900 text-white p-6 rounded-3xl shadow-xl">
           <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest mb-1">Totale Mese</p>
           <p className="text-3xl font-mono font-bold">
@@ -95,12 +95,12 @@ export default async function MonthlyDetailPage({ params }: { params: Promise<{ 
             <Receipt size={20} className="text-zinc-400" />
             Elenco Spese
           </h2>
-          <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
+          <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest hidden sm:inline">
             {detail.expenses.length} Transazioni
           </span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto lg:overflow-x-hidden">
+          <table className="min-w-full text-left border-collapse">
             <thead>
               <tr className="bg-zinc-50 border-b border-zinc-100">
                 <th className="px-8 py-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Data</th>

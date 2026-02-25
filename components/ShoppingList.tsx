@@ -64,13 +64,13 @@ export default function ShoppingList({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Aggiungi un articolo..."
-                className="w-full px-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-zinc-900 transition-all"
+                className="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-zinc-900 transition-all text-base"
               />
             </div>
             <button
               type="submit"
               disabled={isPending}
-              className="px-8 py-4 bg-zinc-900 text-white rounded-2xl font-bold hover:bg-zinc-800 transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="px-6 py-3 bg-zinc-900 text-white rounded-2xl font-bold hover:bg-zinc-800 transition-colors flex items-center gap-2 disabled:opacity-50 text-sm"
             >
               <Plus size={20} />
               <span className="hidden sm:inline">Aggiungi</span>
@@ -90,7 +90,7 @@ export default function ShoppingList({
               key={item.id}
               className="group bg-white p-4 rounded-3xl border border-zinc-100 shadow-sm flex items-center gap-4 hover:border-zinc-300 transition-all"
             >
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 flex-shrink-0">
                 <button
                   onClick={() => moveArticolo(item.id, 'up')}
                   disabled={index === 0}

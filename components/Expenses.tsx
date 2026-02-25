@@ -122,18 +122,18 @@ export default function ExpensesPage({
           className="p-4 bg-zinc-900 text-white rounded-2xl shadow-lg hover:bg-zinc-800 transition-all flex items-center gap-2"
         >
           <Plus size={24} />
-          <span className="font-bold">{editingId ? 'Modifica Spesa' : 'Nuova Spesa'}</span>
+          <span className="font-bold hidden sm:inline">{editingId ? 'Modifica Spesa' : 'Nuova Spesa'}</span>
         </button>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm">
-          <Filter size={20} className="text-zinc-400" />
-          <span className="text-sm font-bold text-zinc-500 uppercase">Filtra per Vacanza:</span>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="flex flex-wrap items-center gap-4 bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm">
+          <Filter size={20} className="text-zinc-400 flex-shrink-0" />
+          <span className="text-sm font-bold text-zinc-500 uppercase flex-shrink-0">Filtra per Vacanza:</span>
           <select
             value={currentVacanzaId.toString()}
             onChange={e => handleVacanzaFilter(e.target.value)}
-            className="bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            className="flex-1 min-w-[120px] bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
           >
             <option value="0">Tutte le spese</option>
             {vacanze.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
@@ -141,7 +141,7 @@ export default function ExpensesPage({
         </div>
 
         <form onSubmit={handleSearch} className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm">
-          <Search size={20} className="text-zinc-400" />
+          <Search size={20} className="text-zinc-400 flex-shrink-0" />
           <input
             type="text"
             placeholder="Cerca per nota o categoria..."
@@ -266,8 +266,8 @@ export default function ExpensesPage({
       </AnimatePresence>
 
       <div className="bg-white rounded-3xl border border-zinc-100 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto lg:overflow-x-hidden">
+          <table className="min-w-full text-left border-collapse">
             <thead>
               <tr className="bg-zinc-50 border-b border-zinc-100">
                 <th className="px-6 py-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Data</th>

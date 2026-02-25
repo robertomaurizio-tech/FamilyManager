@@ -48,7 +48,7 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
           className="p-4 bg-zinc-900 text-white rounded-2xl shadow-lg hover:bg-zinc-800 transition-all flex items-center gap-2"
         >
           <Plus size={24} />
-          <span className="font-bold">{editingId ? 'Modifica Categoria' : 'Nuova Categoria'}</span>
+          <span className="font-bold hidden sm:inline">{editingId ? 'Modifica Categoria' : 'Nuova Categoria'}</span>
         </button>
       </header>
 
@@ -61,7 +61,7 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
             className="overflow-hidden"
           >
             <form onSubmit={handleSubmit} className="bg-zinc-50 p-8 rounded-3xl border border-zinc-200 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Nome Categoria</label>
                   <input
@@ -109,7 +109,7 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {categories.map((cat) => (
           <div 
             key={cat.id} 

@@ -28,7 +28,7 @@ export default function DashboardChart({ data }: { data: any[] }) {
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
-          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+          margin={{ top: 20, right: 10, left: 0, bottom: 5 }}
           onClick={handleClick}
           style={{ cursor: 'pointer' }}
         >
