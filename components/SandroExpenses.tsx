@@ -72,12 +72,12 @@ export default function SandroExpenses({
             <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
               <Plus size={20} /> Nuova Spesa
             </h2>
-            <form onSubmit={handleAdd} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <form onSubmit={handleAdd} className="flex flex-col lg:flex-row gap-4">
               <input
                 type="date"
                 value={formData.data}
                 onChange={e => setFormData({...formData, data: e.target.value})}
-                className="px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                className="w-full lg:w-40 px-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-sm"
                 required
               />
               <input
@@ -85,25 +85,25 @@ export default function SandroExpenses({
                 placeholder="Descrizione"
                 value={formData.descrizione}
                 onChange={e => setFormData({...formData, descrizione: e.target.value})}
-                className="px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                className="flex-1 min-w-0 px-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-sm"
                 required
               />
-              <div className="flex gap-2">
+              <div className="flex gap-2 w-full lg:w-auto">
                 <input
                   type="number"
                   step="0.01"
                   placeholder="Importo"
                   value={formData.importo}
                   onChange={e => setFormData({...formData, importo: e.target.value})}
-                  className="flex-1 px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  className="w-full lg:w-32 px-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-sm"
                   required
                 />
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="p-3 bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 disabled:opacity-50"
+                  className="px-4 bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 disabled:opacity-50 transition-colors flex-shrink-0"
                 >
-                  <Plus size={24} />
+                  <Plus size={20} />
                 </button>
               </div>
             </form>

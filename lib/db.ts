@@ -20,7 +20,14 @@ db.exec(`
 
   CREATE TABLE IF NOT EXISTS storico_spesa (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    articolo TEXT NOT NULL UNIQUE
+    articolo TEXT NOT NULL UNIQUE,
+    conteggio INTEGER DEFAULT 1
+  );
+
+  CREATE TABLE IF NOT EXISTS categorie (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL UNIQUE,
+    colore TEXT NOT NULL DEFAULT '#000000'
   );
 
   CREATE TABLE IF NOT EXISTS spese (
@@ -62,6 +69,27 @@ try {
 const duplicates = db.prepare("SELECT ordine, COUNT(*) as count FROM lista_spesa GROUP BY ordine HAVING count > 1").all();
 if (duplicates.length > 0) {
   db.prepare("UPDATE lista_spesa SET ordine = id").run();
+}
+
+// Migration: Add conteggio column to storico_spesa if it doesn't exist
+try {
+  db.prepare("ALTER TABLE storico_spesa ADD COLUMN conteggio INTEGER DEFAULT 1").run();
+} catch (e) {}
+
+// Seed default categories if empty
+const catCount = db.prepare("SELECT COUNT(*) as count FROM categorie").get() as { count: number };
+if (catCount.count === 0) {
+  const defaults = [
+    ['Alimentari', '#10b981'],
+    ['Casa', '#3b82f6'],
+    ['Bollette', '#ef4444'],
+    ['Trasporti', '#f59e0b'],
+    ['Salute', '#ec4899'],
+    ['Svago', '#8b5cf6'],
+    ['Altro', '#6b7280']
+  ];
+  const stmt = db.prepare("INSERT INTO categorie (nome, colore) VALUES (?, ?)");
+  defaults.forEach(d => stmt.run(d[0], d[1]));
 }
 
 export default db;

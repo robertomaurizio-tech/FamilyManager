@@ -1,18 +1,20 @@
-import { getSpese, getVacanze, getActiveVacanza } from '@/lib/actions';
+import { getSpese, getVacanze, getActiveVacanza, getCategorie } from '@/lib/actions';
 import Expenses from '@/components/Expenses';
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; idVacanza?: string }>;
+  searchParams: Promise<{ page?: string; idVacanza?: string; q?: string }>;
 }) {
   const params = await searchParams;
   const page = parseInt(params.page || '1');
   const idVacanza = parseInt(params.idVacanza || '0');
+  const search = params.q || '';
   
-  const { items, total } = await getSpese(idVacanza, page);
+  const { items, total } = await getSpese(idVacanza, page, 10, search);
   const vacanze = await getVacanze();
   const activeVacanza = await getActiveVacanza();
+  const categorie = await getCategorie();
   
   return (
     <Expenses 
@@ -20,8 +22,10 @@ export default async function Page({
       total={total} 
       vacanze={vacanze} 
       activeVacanza={activeVacanza}
+      categorie={categorie}
       currentPage={page}
       currentVacanzaId={idVacanza}
+      currentSearch={search}
     />
   );
 }

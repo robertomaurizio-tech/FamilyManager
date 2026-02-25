@@ -2,44 +2,45 @@
 
 import * as React from 'react';
 import { addSpesa, deleteSpesa, updateSpesa } from '@/lib/actions';
-import { Receipt, Plus, Trash2, Filter, Calendar, Tag, Euro, ChevronLeft, ChevronRight, Edit2 } from 'lucide-react';
+import { Receipt, Plus, Trash2, Filter, Calendar, Tag, Euro, ChevronLeft, ChevronRight, Edit2, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-
-const categories = [
-  'Alimentari', 'Casa', 'Bollette', 'Trasporti', 'Salute', 'Svago', 'Altro'
-];
 
 export default function ExpensesPage({ 
   spese, 
   total, 
   vacanze, 
   activeVacanza,
+  categorie,
   currentPage,
-  currentVacanzaId
+  currentVacanzaId,
+  currentSearch
 }: { 
   spese: any[], 
   total: number,
   vacanze: any[],
   activeVacanza: any,
+  categorie: any[],
   currentPage: number,
-  currentVacanzaId: number
+  currentVacanzaId: number,
+  currentSearch: string
 }) {
   const router = useRouter();
   const [isAdding, setIsAdding] = React.useState(false);
   const [editingId, setEditingId] = React.useState<number | null>(null);
+  const [search, setSearch] = React.useState(currentSearch);
   
   const [formData, setFormData] = React.useState({
     importo: '',
-    categoria: 'Alimentari',
+    categoria: categorie[0]?.nome || 'Alimentari',
     note: '',
     data: new Date().toISOString().split('T')[0],
     id_vacanza: activeVacanza ? activeVacanza.id.toString() : '0',
     extra: false
   });
 
-  const totalPages = Math.ceil(total / 20);
+  const totalPages = Math.ceil(total / 10);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,11 +95,16 @@ export default function ExpensesPage({
   };
 
   const handlePageChange = (page: number) => {
-    router.push(`/expenses?page=${page}&idVacanza=${currentVacanzaId}`);
+    router.push(`/expenses?page=${page}&idVacanza=${currentVacanzaId}&q=${search}`);
   };
 
   const handleVacanzaFilter = (id: string) => {
-    router.push(`/expenses?page=1&idVacanza=${id}`);
+    router.push(`/expenses?page=1&idVacanza=${id}&q=${search}`);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    router.push(`/expenses?page=1&idVacanza=${currentVacanzaId}&q=${search}`);
   };
 
   return (
@@ -120,17 +126,31 @@ export default function ExpensesPage({
         </button>
       </header>
 
-      <div className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm">
-        <Filter size={20} className="text-zinc-400" />
-        <span className="text-sm font-bold text-zinc-500 uppercase">Filtra per Vacanza:</span>
-        <select
-          value={currentVacanzaId.toString()}
-          onChange={e => handleVacanzaFilter(e.target.value)}
-          className="bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
-        >
-          <option value="0">Tutte le spese</option>
-          {vacanze.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
-        </select>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm">
+          <Filter size={20} className="text-zinc-400" />
+          <span className="text-sm font-bold text-zinc-500 uppercase">Filtra per Vacanza:</span>
+          <select
+            value={currentVacanzaId.toString()}
+            onChange={e => handleVacanzaFilter(e.target.value)}
+            className="bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+          >
+            <option value="0">Tutte le spese</option>
+            {vacanze.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
+          </select>
+        </div>
+
+        <form onSubmit={handleSearch} className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm">
+          <Search size={20} className="text-zinc-400" />
+          <input
+            type="text"
+            placeholder="Cerca per nota o categoria..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="flex-1 bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+          />
+          <button type="submit" className="hidden">Cerca</button>
+        </form>
       </div>
 
       <AnimatePresence>
@@ -167,7 +187,7 @@ export default function ExpensesPage({
                       onChange={e => setFormData({...formData, categoria: e.target.value})}
                       className="w-full pl-12 pr-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-zinc-900 outline-none appearance-none"
                     >
-                      {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                      {categorie.map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)}
                     </select>
                   </div>
                 </div>
@@ -263,7 +283,10 @@ export default function ExpensesPage({
                 <tr key={spesa.id} className="hover:bg-zinc-50/50 transition-colors group">
                   <td className="px-6 py-4 text-sm text-zinc-600">{formatDate(spesa.data)}</td>
                   <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 text-zinc-800">
+                    <span 
+                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold text-white shadow-sm"
+                      style={{ backgroundColor: categorie.find(c => c.nome === spesa.categoria)?.colore || '#6b7280' }}
+                    >
                       {spesa.categoria}
                     </span>
                   </td>

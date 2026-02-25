@@ -12,13 +12,15 @@ import {
   Receipt,
   Menu,
   X,
-  User
+  User,
+  Tag
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Spese', href: '/expenses', icon: Receipt },
+  { name: 'Categorie', href: '/categories', icon: Tag },
   { name: 'Lista Spesa', href: '/shopping-list', icon: ShoppingCart },
   { name: 'Lavori', href: '/tasks', icon: CheckSquare },
   { name: 'Vacanze', href: '/holidays', icon: Palmtree },

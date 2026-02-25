@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { addArticolo, deleteArticolo, moveArticolo } from '@/lib/actions';
-import { ShoppingCart, Plus, Trash2, CheckCircle2, ChevronUp, ChevronDown, History } from 'lucide-react';
+import { ShoppingCart, Plus, Trash2, CheckCircle2, ChevronUp, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function ShoppingList({ 
@@ -14,15 +14,6 @@ export default function ShoppingList({
 }) {
   const [input, setInput] = React.useState('');
   const [isPending, setIsPending] = React.useState(false);
-  const [showSuggestions, setShowSuggestions] = React.useState(false);
-
-  const suggestions = React.useMemo(() => {
-    if (!input.trim()) return [];
-    return storicoSpesa
-      .filter(s => s.articolo.toLowerCase().includes(input.toLowerCase()))
-      .filter(s => !listaSpesa.some(item => item.articolo.toLowerCase() === s.articolo.toLowerCase()))
-      .slice(0, 5);
-  }, [input, storicoSpesa, listaSpesa]);
 
   const handleAdd = async (e?: React.FormEvent, value?: string) => {
     e?.preventDefault();
@@ -31,7 +22,6 @@ export default function ShoppingList({
     setIsPending(true);
     await addArticolo(finalValue);
     setInput('');
-    setShowSuggestions(false);
     setIsPending(false);
   };
 
@@ -47,59 +37,46 @@ export default function ShoppingList({
         </div>
       </header>
 
-      <div className="relative">
-        <form onSubmit={handleAdd} className="flex gap-2">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => {
-                setInput(e.target.value);
-                setShowSuggestions(true);
-              }}
-              onFocus={() => setShowSuggestions(true)}
-              placeholder="Aggiungi un articolo..."
-              className="w-full px-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-zinc-900 transition-all"
-            />
-            <AnimatePresence>
-              {showSuggestions && suggestions.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute left-0 right-0 top-full mt-2 bg-white border border-zinc-200 rounded-2xl shadow-xl z-50 overflow-hidden"
+      <div className="space-y-4">
+        {storicoSpesa.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">Più acquistati</p>
+            <div className="flex flex-wrap gap-2">
+              {storicoSpesa.map((s, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleAdd(undefined, s.articolo)}
+                  className="px-3 py-1.5 bg-white border border-zinc-200 rounded-full text-xs font-bold text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-all shadow-sm flex items-center gap-1.5"
                 >
-                  <div className="p-2 border-b border-zinc-100 bg-zinc-50 flex items-center gap-2">
-                    <History size={14} className="text-zinc-400" />
-                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Suggerimenti dal passato</span>
-                  </div>
-                  {suggestions.map((s, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => handleAdd(undefined, s.articolo)}
-                      className="w-full px-6 py-3 text-left hover:bg-zinc-50 transition-colors flex items-center justify-between group"
-                    >
-                      <span className="text-zinc-700">{s.articolo}</span>
-                      <Plus size={16} className="text-zinc-300 group-hover:text-zinc-900" />
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  <Plus size={12} />
+                  {s.articolo}
+                </button>
+              ))}
+            </div>
           </div>
-          <button
-            type="submit"
-            disabled={isPending}
-            className="px-8 py-4 bg-zinc-900 text-white rounded-2xl font-bold hover:bg-zinc-800 transition-colors flex items-center gap-2 disabled:opacity-50"
-          >
-            <Plus size={20} />
-            <span className="hidden sm:inline">Aggiungi</span>
-          </button>
-        </form>
-        {showSuggestions && (
-          <div className="fixed inset-0 z-40" onClick={() => setShowSuggestions(false)} />
         )}
+
+        <div className="relative">
+          <form onSubmit={handleAdd} className="flex gap-2">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Aggiungi un articolo..."
+                className="w-full px-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-zinc-900 transition-all"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isPending}
+              className="px-8 py-4 bg-zinc-900 text-white rounded-2xl font-bold hover:bg-zinc-800 transition-colors flex items-center gap-2 disabled:opacity-50"
+            >
+              <Plus size={20} />
+              <span className="hidden sm:inline">Aggiungi</span>
+            </button>
+          </form>
+        </div>
       </div>
 
       <div className="space-y-3">

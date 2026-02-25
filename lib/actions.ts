@@ -29,7 +29,13 @@ export async function getListaSpesa() {
 }
 
 export async function getStoricoSpesa() {
-  return db.prepare('SELECT articolo FROM storico_spesa ORDER BY articolo ASC').all() as { articolo: string }[];
+  return db.prepare(`
+    SELECT articolo 
+    FROM storico_spesa 
+    WHERE articolo NOT IN (SELECT articolo FROM lista_spesa)
+    ORDER BY conteggio DESC 
+    LIMIT 10
+  `).all() as { articolo: string }[];
 }
 
 export async function addArticolo(articolo: string) {
@@ -58,23 +64,43 @@ export async function moveArticolo(id: number, direction: 'up' | 'down') {
 export async function deleteArticolo(id: number) {
   const item = db.prepare('SELECT articolo FROM lista_spesa WHERE id = ?').get(id) as { articolo: string };
   if (item) {
-    // Add to history when "bought" (deleted from active list)
-    db.prepare('INSERT OR IGNORE INTO storico_spesa (articolo) VALUES (?)').run(item.articolo);
+    // Increment count in history when "bought"
+    const existing = db.prepare('SELECT id FROM storico_spesa WHERE articolo = ?').get(item.articolo);
+    if (existing) {
+      db.prepare('UPDATE storico_spesa SET conteggio = conteggio + 1 WHERE articolo = ?').run(item.articolo);
+    } else {
+      db.prepare('INSERT INTO storico_spesa (articolo, conteggio) VALUES (?, 1)').run(item.articolo);
+    }
   }
   db.prepare('DELETE FROM lista_spesa WHERE id = ?').run(id);
   revalidatePath('/shopping-list');
 }
 
 // --- SPESE ---
-export async function getSpese(idVacanza: number = 0, page: number = 1, limit: number = 20) {
+export async function getSpese(idVacanza: number = 0, page: number = 1, limit: number = 10, search: string = '') {
   const offset = (page - 1) * limit;
+  const searchPattern = `%${search}%`;
+  
+  let query = 'SELECT * FROM spese WHERE 1=1';
+  let countQuery = 'SELECT COUNT(*) as count FROM spese WHERE 1=1';
+  const params: any[] = [];
+
   if (idVacanza > 0) {
-    const items = db.prepare('SELECT * FROM spese WHERE id_vacanza = ? ORDER BY data DESC LIMIT ? OFFSET ?').all(idVacanza, limit, offset) as any[];
-    const total = db.prepare('SELECT COUNT(*) as count FROM spese WHERE id_vacanza = ?').get(idVacanza) as { count: number };
-    return { items, total: total.count };
+    query += ' AND id_vacanza = ?';
+    countQuery += ' AND id_vacanza = ?';
+    params.push(idVacanza);
   }
-  const items = db.prepare('SELECT * FROM spese ORDER BY data DESC LIMIT ? OFFSET ?').all(limit, offset) as any[];
-  const total = db.prepare('SELECT COUNT(*) as count FROM spese').get() as { count: number };
+
+  if (search) {
+    query += ' AND (note LIKE ? OR categoria LIKE ?)';
+    countQuery += ' AND (note LIKE ? OR categoria LIKE ?)';
+    params.push(searchPattern, searchPattern);
+  }
+
+  query += ' ORDER BY data DESC LIMIT ? OFFSET ?';
+  const items = db.prepare(query).all(...params, limit, offset) as any[];
+  const total = db.prepare(countQuery).get(...params) as { count: number };
+  
   return { items, total: total.count };
 }
 
@@ -114,6 +140,12 @@ export async function getActiveVacanza() {
 export async function addVacanza(nome: string, dataInizio: string, dataFine?: string) {
   db.prepare('INSERT INTO vacanze (nome, attiva, data_inizio, data_fine) VALUES (?, 1, ?, ?)')
     .run(nome, dataInizio, dataFine || null);
+  revalidatePath('/holidays');
+}
+
+export async function updateVacanza(id: number, nome: string, dataInizio: string, dataFine?: string) {
+  db.prepare('UPDATE vacanze SET nome = ?, data_inizio = ?, data_fine = ? WHERE id = ?')
+    .run(nome, dataInizio, dataFine || null, id);
   revalidatePath('/holidays');
 }
 
@@ -165,4 +197,97 @@ export async function getPagamentiSandro() {
 export async function deleteSpesaSandro(id: number) {
   db.prepare('DELETE FROM spese_sandro WHERE id = ?').run(id);
   revalidatePath('/sandro');
+}
+
+// --- CATEGORIE ---
+export async function getCategorie() {
+  return db.prepare('SELECT * FROM categorie ORDER BY nome ASC').all() as any[];
+}
+
+export async function addCategoria(nome: string, colore: string) {
+  db.prepare('INSERT INTO categorie (nome, colore) VALUES (?, ?)').run(nome, colore);
+  revalidatePath('/categories');
+  revalidatePath('/expenses');
+}
+
+export async function updateCategoria(id: number, nome: string, colore: string) {
+  db.prepare('UPDATE categorie SET nome = ?, colore = ? WHERE id = ?').run(nome, colore, id);
+  revalidatePath('/categories');
+  revalidatePath('/expenses');
+}
+
+export async function deleteCategoria(id: number) {
+  db.prepare('DELETE FROM categorie WHERE id = ?').run(id);
+  revalidatePath('/categories');
+  revalidatePath('/expenses');
+}
+
+// --- DASHBOARD & ANALYTICS ---
+export async function getDashboardChartData() {
+  // Get last 6 months of data
+  const data = db.prepare(`
+    SELECT 
+      strftime('%Y-%m', data) as month,
+      SUM(CASE WHEN extra = 0 AND id_vacanza = 0 THEN importo ELSE 0 END) as normali,
+      SUM(CASE WHEN extra = 1 THEN importo ELSE 0 END) as extra,
+      SUM(CASE WHEN id_vacanza > 0 AND extra = 0 THEN importo ELSE 0 END) as vacanza
+    FROM spese
+    GROUP BY month
+    ORDER BY month DESC
+    LIMIT 6
+  `).all() as any[];
+  
+  return data.reverse();
+}
+
+export async function getMonthlyAverage() {
+  const result = db.prepare(`
+    SELECT AVG(monthly_total) as average
+    FROM (
+      SELECT SUM(importo) as monthly_total
+      FROM spese
+      GROUP BY strftime('%Y-%m', data)
+    )
+  `).get() as { average: number | null };
+  
+  return result.average || 0;
+}
+
+export async function getMonthlyExpensesDetail(month: string) {
+  // month format: YYYY-MM
+  const expenses = db.prepare(`
+    SELECT s.*, v.nome as vacanza_nome
+    FROM spese s
+    LEFT JOIN vacanze v ON s.id_vacanza = v.id
+    WHERE strftime('%Y-%m', s.data) = ?
+    ORDER BY s.data DESC
+  `).all(month) as any[];
+
+  const byCategory = db.prepare(`
+    SELECT categoria, SUM(importo) as totale
+    FROM spese
+    WHERE strftime('%Y-%m', data) = ?
+    GROUP BY categoria
+  `).all(month) as any[];
+
+  const byVacanza = db.prepare(`
+    SELECT v.nome, SUM(s.importo) as totale
+    FROM spese s
+    JOIN vacanze v ON s.id_vacanza = v.id
+    WHERE strftime('%Y-%m', s.data) = ?
+    GROUP BY v.nome
+  `).all(month) as any[];
+
+  const extraTotal = db.prepare(`
+    SELECT SUM(importo) as totale
+    FROM spese
+    WHERE strftime('%Y-%m', data) = ? AND extra = 1
+  `).get(month) as { totale: number | null };
+
+  return {
+    expenses,
+    byCategory,
+    byVacanza,
+    extraTotal: extraTotal.totale || 0
+  };
 }

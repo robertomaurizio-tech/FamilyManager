@@ -1,12 +1,15 @@
-import { getSpese, getLavori, getListaSpesa, getVacanze } from '@/lib/actions';
+import { getSpese, getLavori, getListaSpesa, getVacanze, getCategorie, getMonthlyAverage, getDashboardChartData } from '@/lib/actions';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
+import DashboardChart from '@/components/DashboardChart';
 import { 
   ArrowUpRight, 
   ArrowDownRight, 
   TrendingUp, 
   ShoppingCart, 
   CheckSquare, 
-  Palmtree 
+  Palmtree,
+  Tag,
+  BarChart3
 } from 'lucide-react';
 
 export default async function Dashboard() {
@@ -14,8 +17,11 @@ export default async function Dashboard() {
   const lavori = await getLavori();
   const listaSpesa = await getListaSpesa();
   const vacanze = await getVacanze();
+  const categorie = await getCategorie();
+  const monthlyAverage = await getMonthlyAverage();
+  const chartData = await getDashboardChartData();
 
-  const totalSpeseResult = await getSpese(0, 1, 10000); // Get all for total calculation or use a dedicated action
+  const totalSpeseResult = await getSpese(0, 1, 10000); 
   const totalSpese = totalSpeseResult.items.reduce((acc, curr) => acc + curr.importo, 0);
   const speseMese = totalSpeseResult.items
     .filter(s => new Date(s.data).getMonth() === new Date().getMonth())
@@ -34,12 +40,10 @@ export default async function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
-          title="Spese Totali" 
-          value={formatCurrency(totalSpese)} 
-          description="Tutte le spese registrate"
+          title="Spesa Media" 
+          value={formatCurrency(monthlyAverage)} 
+          description="Media mensile storica"
           icon={TrendingUp}
-          trend="+12%"
-          trendUp={true}
         />
         <StatCard 
           title="Spese Mese" 
@@ -62,35 +66,50 @@ export default async function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-8">
+          <section className="bg-white rounded-[2.5rem] p-8 border border-zinc-100 shadow-sm">
+            <div className="flex items-center gap-3 mb-2">
+              <BarChart3 className="text-zinc-400" size={20} />
+              <h2 className="text-xl font-bold font-display">Andamento Spese</h2>
+            </div>
+            <p className="text-sm text-zinc-500 mb-6">Confronto mensile tra spese normali, vacanze ed extra.</p>
+            <DashboardChart data={chartData} />
+          </section>
+
           <section className="bg-zinc-50 rounded-3xl p-6 border border-zinc-100">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold font-display">Ultime Spese</h2>
               <button className="text-sm font-semibold text-zinc-500 hover:text-zinc-900">Vedi tutte</button>
             </div>
             <div className="space-y-4">
-              {spese.slice(0, 5).map((spesa) => (
-                <div key={spesa.id} className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-zinc-100">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center">
-                      <ReceiptIcon category={spesa.categoria} />
+              {spese.slice(0, 5).map((spesa) => {
+                const cat = categorie.find(c => c.nome === spesa.categoria);
+                return (
+                  <div key={spesa.id} className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-zinc-100">
+                    <div className="flex items-center gap-4">
+                      <div 
+                        className="w-10 h-10 rounded-full flex items-center justify-center shadow-inner"
+                        style={{ backgroundColor: cat?.colore || '#f4f4f5' }}
+                      >
+                        <Tag size={18} className="text-white drop-shadow-sm" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-zinc-900">
+                          {spesa.note || spesa.categoria}
+                          {spesa.id_vacanza > 0 && (
+                            <span className="ml-2 inline-flex items-center gap-1 text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold uppercase">
+                              <Palmtree size={10} />
+                              {vacanze.find(v => v.id === spesa.id_vacanza)?.nome}
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-xs text-zinc-500">{formatDate(spesa.data)} • {spesa.categoria}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-zinc-900">
-                        {spesa.note || spesa.categoria}
-                        {spesa.id_vacanza > 0 && (
-                          <span className="ml-2 inline-flex items-center gap-1 text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold uppercase">
-                            <Palmtree size={10} />
-                            {vacanze.find(v => v.id === spesa.id_vacanza)?.nome}
-                          </span>
-                        )}
-                      </p>
-                      <p className="text-xs text-zinc-500">{formatDate(spesa.data)} • {spesa.categoria}</p>
-                    </div>
+                    <p className="font-bold text-zinc-900">{formatCurrency(spesa.importo)}</p>
                   </div>
-                  <p className="font-bold text-zinc-900">{formatCurrency(spesa.importo)}</p>
-                </div>
-              ))}
+                );
+              })}
               {spese.length === 0 && (
                 <p className="text-center text-zinc-400 py-8">Nessuna spesa registrata.</p>
               )}
@@ -159,9 +178,4 @@ function StatCard({ title, value, description, icon: Icon, trend, trendUp }: any
       <p className="text-xs text-zinc-400 mt-2">{description}</p>
     </div>
   );
-}
-
-function ReceiptIcon({ category }: { category: string }) {
-  // Simple helper for icons based on category
-  return <TrendingUp size={18} className="text-zinc-600" />;
 }

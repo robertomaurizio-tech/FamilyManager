@@ -1,13 +1,14 @@
 'use client';
 
 import * as React from 'react';
-import { addVacanza, toggleVacanzaAttiva, deleteVacanza } from '@/lib/actions';
-import { Palmtree, Plus, Trash2, Calendar, MapPin, CheckCircle2, XCircle } from 'lucide-react';
+import { addVacanza, updateVacanza, toggleVacanzaAttiva, deleteVacanza } from '@/lib/actions';
+import { Palmtree, Plus, Trash2, Calendar, MapPin, CheckCircle2, XCircle, Edit2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatDate, cn, formatCurrency } from '@/lib/utils';
 
 export default function HolidaysPage({ vacanze }: { vacanze: any[] }) {
   const [isAdding, setIsAdding] = React.useState(false);
+  const [editingId, setEditingId] = React.useState<number | null>(null);
   const [formData, setFormData] = React.useState({
     nome: '',
     data_inizio: new Date().toISOString().split('T')[0],
@@ -17,13 +18,31 @@ export default function HolidaysPage({ vacanze }: { vacanze: any[] }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.nome.trim()) return;
-    await addVacanza(formData.nome, formData.data_inizio, formData.data_fine);
+    
+    if (editingId) {
+      await updateVacanza(editingId, formData.nome, formData.data_inizio, formData.data_fine);
+    } else {
+      await addVacanza(formData.nome, formData.data_inizio, formData.data_fine);
+    }
+
     setFormData({
       nome: '',
       data_inizio: new Date().toISOString().split('T')[0],
       data_fine: ''
     });
     setIsAdding(false);
+    setEditingId(null);
+  };
+
+  const handleEdit = (v: any) => {
+    setFormData({
+      nome: v.nome,
+      data_inizio: v.data_inizio,
+      data_fine: v.data_fine || ''
+    });
+    setEditingId(v.id);
+    setIsAdding(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -34,11 +53,14 @@ export default function HolidaysPage({ vacanze }: { vacanze: any[] }) {
           <p className="text-zinc-500 mt-2">Organizza i tuoi viaggi e monitora le spese dedicate.</p>
         </div>
         <button 
-          onClick={() => setIsAdding(!isAdding)}
+          onClick={() => {
+            setIsAdding(!isAdding);
+            if (isAdding) setEditingId(null);
+          }}
           className="p-4 bg-emerald-600 text-white rounded-2xl shadow-lg hover:bg-emerald-700 transition-all flex items-center gap-2"
         >
           <Plus size={24} />
-          <span className="font-bold">Nuova Vacanza</span>
+          <span className="font-bold">{editingId ? 'Modifica Vacanza' : 'Nuova Vacanza'}</span>
         </button>
       </header>
 
@@ -98,7 +120,10 @@ export default function HolidaysPage({ vacanze }: { vacanze: any[] }) {
               <div className="flex justify-end gap-3 pt-4">
                 <button 
                   type="button"
-                  onClick={() => setIsAdding(false)}
+                  onClick={() => {
+                    setIsAdding(false);
+                    setEditingId(null);
+                  }}
                   className="px-6 py-3 text-emerald-700 font-bold hover:text-emerald-900 transition-colors"
                 >
                   Annulla
@@ -107,7 +132,7 @@ export default function HolidaysPage({ vacanze }: { vacanze: any[] }) {
                   type="submit"
                   className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all"
                 >
-                  Crea Vacanza
+                  {editingId ? 'Salva Modifiche' : 'Crea Vacanza'}
                 </button>
               </div>
             </form>
@@ -129,6 +154,16 @@ export default function HolidaysPage({ vacanze }: { vacanze: any[] }) {
                 <Palmtree size={32} />
               </div>
               <div className="flex gap-2">
+                <button 
+                  onClick={() => handleEdit(v)}
+                  className={cn(
+                    "p-2 rounded-xl transition-colors",
+                    v.attiva ? "text-emerald-600 hover:bg-emerald-50" : "text-zinc-400 hover:bg-zinc-50"
+                  )}
+                  title="Modifica"
+                >
+                  <Edit2 size={20} />
+                </button>
                 <button 
                   onClick={() => toggleVacanzaAttiva(v.id, !v.attiva)}
                   className={cn(
