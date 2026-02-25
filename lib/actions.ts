@@ -2,6 +2,19 @@
 
 import db from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { parse } from 'csv-parse/sync';
+
+interface CsvRow {
+  id: string;
+  data: string;
+  categoria: string;
+  importo: string;
+  note: string;
+  id_vacanza: string;
+  extra: string;
+  user?: string; // Ignored
+  tipo?: string; // Ignored
+}
 
 // --- LAVORI ---
 export async function getLavori() {
@@ -197,6 +210,116 @@ export async function getPagamentiSandro() {
 export async function deleteSpesaSandro(id: number) {
   db.prepare('DELETE FROM spese_sandro WHERE id = ?').run(id);
   revalidatePath('/sandro');
+}
+
+// Helper to ensure category exists
+async function ensureCategoryExists(categoryName: string) {
+  const existingCategory = db.prepare('SELECT id FROM categorie WHERE nome = ?').get(categoryName) as { id: number } | undefined;
+  if (!existingCategory) {
+    // Insert a default color if category doesn't exist
+    db.prepare('INSERT INTO categorie (nome, colore) VALUES (?, ?)')
+      .run(categoryName, '#6b7280'); // Default gray color
+    revalidatePath('/categories');
+    revalidatePath('/expenses');
+  }
+}
+
+// Helper to ensure holiday exists and update dates
+async function ensureHolidayExists(id: number, nome: string, dataSpesa: string) {
+  const existingHoliday = db.prepare('SELECT data_inizio, data_fine FROM vacanze WHERE id = ?').get(id) as { data_inizio: string, data_fine: string } | undefined;
+  
+  if (existingHoliday) {
+    let newStartDate = existingHoliday.data_inizio;
+    let newEndDate = existingHoliday.data_fine;
+
+    if (dataSpesa < newStartDate) {
+      newStartDate = dataSpesa;
+    }
+    if (dataSpesa > newEndDate) {
+      newEndDate = dataSpesa;
+    }
+    
+    db.prepare('UPDATE vacanze SET data_inizio = ?, data_fine = ? WHERE id = ?')
+      .run(newStartDate, newEndDate, id);
+  } else {
+    db.prepare('INSERT INTO vacanze (id, nome, attiva, data_inizio, data_fine) VALUES (?, ?, 1, ?, ?)')
+      .run(id, nome, dataSpesa, dataSpesa);
+  }
+  revalidatePath('/holidays');
+  revalidatePath('/expenses');
+}
+
+export async function uploadCsvExpenses(csvContent: string) {
+  try {
+    const records = parse(csvContent, {
+      columns: true,
+      skip_empty_lines: true,
+      delimiter: ',',
+      trim: true,
+    }) as CsvRow[];
+
+    // Group expenses by holiday to determine min/max dates for holidays
+    const expensesByHoliday = new Map<string, { dates: string[], expenses: CsvRow[] }>();
+
+    for (const record of records) {
+      const id_vacanza = record.id_vacanza;
+      if (id_vacanza && id_vacanza !== '0') {
+        if (!expensesByHoliday.has(id_vacanza)) {
+          expensesByHoliday.set(id_vacanza, { dates: [], expenses: [] });
+        }
+        expensesByHoliday.get(id_vacanza)?.dates.push(record.data);
+        expensesByHoliday.get(id_vacanza)?.expenses.push(record);
+      }
+    }
+
+    // Process holidays first to establish their date ranges
+    for (const [holidayId, data] of expensesByHoliday.entries()) {
+      const minDate = data.dates.reduce((min, current) => (current < min ? current : min), data.dates[0]);
+      const maxDate = data.dates.reduce((max, current) => (current > max ? current : max), data.dates[0]);
+
+      // Create or update holiday with calculated min/max dates
+      // Use id_vacanza as nome and description as requested
+      const holidayName = `Vacanza ${holidayId}`;
+      const existingHoliday = db.prepare('SELECT id FROM vacanze WHERE id = ?').get(parseInt(holidayId)) as { id: number } | undefined;
+      if (existingHoliday) {
+        db.prepare('UPDATE vacanze SET nome = ?, data_inizio = ?, data_fine = ? WHERE id = ?')
+          .run(holidayName, minDate, maxDate, parseInt(holidayId));
+      } else {
+        db.prepare('INSERT INTO vacanze (id, nome, attiva, data_inizio, data_fine) VALUES (?, ?, 1, ?, ?)')
+          .run(parseInt(holidayId), holidayName, minDate, maxDate);
+      }
+    }
+
+    // Now add expenses, ensuring categories exist
+    for (const record of records) {
+      const importoNum = parseFloat(record.importo);
+      if (isNaN(importoNum)) continue; // Skip invalid amounts
+
+      await ensureCategoryExists(record.categoria);
+
+      const idVacanza = record.id_vacanza && record.id_vacanza !== '0' ? parseInt(record.id_vacanza) : 0;
+      const extra = record.extra === '1' || record.extra.toLowerCase() === 'true';
+
+      // Check if expense with this ID already exists, if so, update, otherwise insert
+      const existingExpense = db.prepare('SELECT id FROM spese WHERE id = ?').get(parseInt(record.id)) as { id: number } | undefined;
+      if (existingExpense) {
+        db.prepare('UPDATE spese SET data = ?, categoria = ?, importo = ?, note = ?, id_vacanza = ?, extra = ? WHERE id = ?')
+          .run(record.data, record.categoria, importoNum, record.note, idVacanza, extra ? 1 : 0, parseInt(record.id));
+      } else {
+        db.prepare('INSERT INTO spese (id, data, categoria, importo, note, id_vacanza, extra) VALUES (?, ?, ?, ?, ?, ?, ?)')
+          .run(parseInt(record.id), record.data, record.categoria, importoNum, record.note, idVacanza, extra ? 1 : 0);
+      }
+    }
+
+    revalidatePath('/expenses');
+    revalidatePath('/holidays');
+    revalidatePath('/');
+
+    return { success: true, message: 'Spese importate e vacanze aggiornate con successo!' };
+  } catch (error: any) {
+    console.error('Errore durante l\'importazione CSV:', error);
+    return { success: false, message: `Errore durante l\'importazione: ${error.message}` };
+  }
 }
 
 // --- CATEGORIE ---
