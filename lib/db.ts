@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 
-const dbPath = path.join(process.cwd(), 'family_manager.db');
+const dbPath = process.env.DATABASE_PATH || path.join(process.cwd(), 'family_manager.db');
 const db = new Database(dbPath);
 
 // Initialize tables based on the provided schema

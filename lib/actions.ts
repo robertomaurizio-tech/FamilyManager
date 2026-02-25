@@ -146,6 +146,22 @@ export async function paySpesaSandro(id: number) {
   revalidatePath('/sandro');
 }
 
+export async function payAllSpeseSandro() {
+  const now = new Date().toISOString().split('T')[0];
+  db.prepare('UPDATE spese_sandro SET pagato = 1, data_pagamento = ? WHERE pagato = 0').run(now);
+  revalidatePath('/sandro');
+}
+
+export async function getPagamentiSandro() {
+  return db.prepare(`
+    SELECT data_pagamento, SUM(importo) as totale 
+    FROM spese_sandro 
+    WHERE pagato = 1 
+    GROUP BY data_pagamento 
+    ORDER BY data_pagamento DESC
+  `).all() as { data_pagamento: string, totale: number }[];
+}
+
 export async function deleteSpesaSandro(id: number) {
   db.prepare('DELETE FROM spese_sandro WHERE id = ?').run(id);
   revalidatePath('/sandro');

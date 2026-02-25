@@ -1,0 +1,16 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - family_data:/app/data
+    environment:
+      - NEXT_PUBLIC_GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - DATABASE_PATH=/app/data/family_manager.db
+    restart: always
+
+volumes:
+  family_data:
