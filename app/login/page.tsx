@@ -37,15 +37,26 @@ export default function LoginPage() {
     }
   };
 
-  const checkSequence = (sequence: string[]) => {
+  const checkSequence = async (sequence: string[]) => {
     const isCorrect = JSON.stringify(sequence) === JSON.stringify(CORRECT_SEQUENCE);
     if (isCorrect) {
-      // Set a cookie for authentication
-      document.cookie = 'auth=true; path=/; max-age=86400'; // Expires in 1 day
-      setStatus('success');
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 1000);
+      try {
+        const response = await fetch('/api/login', { method: 'POST' });
+        if (response.ok) {
+          setStatus('success');
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1000);
+        } else {
+          throw new Error('Login failed');
+        }
+      } catch (error) {
+        setStatus('error');
+        setTimeout(() => {
+          setSelectedSequence([]);
+          setStatus('idle');
+        }, 1000);
+      }
     } else {
       setStatus('error');
       setTimeout(() => {

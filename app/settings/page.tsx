@@ -7,6 +7,12 @@ import CategoriesManager from '@/components/CategoriesManager';
 import { UploadCloud, FileText, CheckCircle2, XCircle, Home, Heart, Star, Sun, Moon, Cloud, Lock, Key, Smile } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+interface Category {
+  id: number;
+  nome: string;
+  colore: string;
+}
+
 export default function SettingsPage() {
   const [file, setFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -14,7 +20,7 @@ export default function SettingsPage() {
   const [message, setMessage] = useState('');
   const [deleteStatus, setDeleteStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
   const [deleteMessage, setDeleteMessage] = useState('');
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   React.useEffect(() => {
     const fetchCategories = async () => {
