@@ -377,6 +377,37 @@ export async function deleteCategoria(id: number) {
   db.prepare('DELETE FROM categorie WHERE id = ?').run(id);
   revalidatePath('/categories');
   revalidatePath('/expenses');
+
+export async function saveLoginSequence(sequence: string[]) {
+  try {
+    const sequenceJson = JSON.stringify(sequence);
+    await sql`
+      INSERT INTO impostazioni (chiave, valore) VALUES ('login_sequence', ${sequenceJson})
+      ON CONFLICT(chiave) DO UPDATE SET valore = ${sequenceJson};
+    `;
+    revalidatePath('/settings');
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to save login sequence:', error);
+    return { success: false, message: 'Failed to save login sequence.' };
+  }
+}
+
+export async function getLoginSequence() {
+  try {
+    const result = await sql`SELECT valore FROM impostazioni WHERE chiave = 'login_sequence'`;
+    if (result.rows.length > 0) {
+      return JSON.parse(result.rows[0].valore);
+    }
+    return ['Star', 'Heart', 'Sun', 'Moon']; // Default sequence
+  } catch (error) {
+    console.error('Failed to get login sequence:', error);
+    return ['Star', 'Heart', 'Sun', 'Moon']; // Default on error
+  }
+}
+  db.prepare('DELETE FROM categorie WHERE id = ?').run(id);
+  revalidatePath('/categories');
+  revalidatePath('/expenses');
 }
 
 // --- DASHBOARD & ANALYTICS ---

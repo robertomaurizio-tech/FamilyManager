@@ -122,7 +122,7 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
               />
               <span className="font-bold text-indigo-600">{cat.nome}</span>
             </div>
-            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex gap-1 transition-opacity">
               <button 
                 onClick={() => startEdit(cat)}
                 className="p-2 text-zinc-400 hover:text-indigo-600 hover:bg-zinc-50 rounded-xl transition-all"

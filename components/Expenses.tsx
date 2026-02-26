@@ -268,7 +268,7 @@ export default function ExpensesPage({
       </AnimatePresence>
 
       <div className="bg-white rounded-3xl border border-zinc-100 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto lg:overflow-x-hidden">
+        <div className="overflow-x-auto">
           <table className="min-w-full text-left border-collapse">
             <thead>
               <tr className="bg-zinc-50 border-b border-zinc-100">

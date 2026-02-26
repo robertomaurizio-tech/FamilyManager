@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Home, Heart, Star, Sun, Moon, Cloud, Lock, Key, Smile } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { getLoginSequence } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
 
 const icons = [
@@ -18,13 +19,21 @@ const icons = [
   { name: 'Smile', component: Smile },
 ];
 
-// This will eventually come from settings
-const CORRECT_SEQUENCE = ['Star', 'Heart', 'Sun', 'Moon'];
+
 
 export default function LoginPage() {
   const router = useRouter();
   const [selectedSequence, setSelectedSequence] = React.useState<string[]>([]);
   const [status, setStatus] = React.useState<'idle' | 'error' | 'success'>('idle');
+  const [correctSequence, setCorrectSequence] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    const fetchSequence = async () => {
+      const sequence = await getLoginSequence();
+      setCorrectSequence(sequence);
+    };
+    fetchSequence();
+  }, []);
 
   const handleIconClick = (iconName: string) => {
     if (status === 'success' || selectedSequence.length >= 4) return;
@@ -38,7 +47,7 @@ export default function LoginPage() {
   };
 
   const checkSequence = async (sequence: string[]) => {
-    const isCorrect = JSON.stringify(sequence) === JSON.stringify(CORRECT_SEQUENCE);
+    const isCorrect = JSON.stringify(sequence) === JSON.stringify(correctSequence);
     if (isCorrect) {
       try {
         const response = await fetch('/api/login', { method: 'POST' });

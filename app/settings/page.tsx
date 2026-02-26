@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { uploadCsvExpenses, deleteAllData, getCategorie } from '@/lib/actions';
+import { uploadCsvExpenses, deleteAllData, getCategorie, saveLoginSequence, getLoginSequence } from '@/lib/actions';
 import CategoriesManager from '@/components/CategoriesManager';
 import { UploadCloud, FileText, CheckCircle2, XCircle, Home, Heart, Star, Sun, Moon, Cloud, Lock, Key, Smile } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -29,7 +29,15 @@ export default function SettingsPage() {
     };
     fetchCategories();
   }, []);
-  const [loginSequence, setLoginSequence] = useState(['Star', 'Heart', 'Sun', 'Moon']); // Default or loaded from storage
+  const [loginSequence, setLoginSequence] = useState<string[]>([]);
+
+  React.useEffect(() => {
+    const fetchLoginSequence = async () => {
+      const sequence = await getLoginSequence();
+      setLoginSequence(sequence);
+    };
+    fetchLoginSequence();
+  }, []);
 
   const availableIcons = [
     { name: 'Home', component: Home },
@@ -52,11 +60,13 @@ export default function SettingsPage() {
     setLoginSequence([]);
   };
 
-  const handleSequenceSave = () => {
-    // Here you would save the sequence to a database or local storage
-    // For this example, we'll just log it.
-    console.log('Saved sequence:', loginSequence);
-    alert('Sequenza salvata!');
+  const handleSequenceSave = async () => {
+    const result = await saveLoginSequence(loginSequence);
+    if (result.success) {
+      alert('Sequenza salvata!');
+    } else {
+      alert('Errore durante il salvataggio della sequenza.');
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
