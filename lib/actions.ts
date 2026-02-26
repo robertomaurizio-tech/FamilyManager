@@ -146,6 +146,14 @@ export async function getVacanze() {
   });
 }
 
+export async function getActiveVacanze() {
+  const vacanze = db.prepare('SELECT * FROM vacanze WHERE attiva = 1 ORDER BY data_inizio DESC').all() as any[];
+  return vacanze.map(v => {
+    const total = db.prepare('SELECT SUM(importo) as total FROM spese WHERE id_vacanza = ?').get(v.id) as { total: number | null };
+    return { ...v, totaleSpeso: total.total || 0 };
+  });
+}
+
 export async function getActiveVacanza() {
   return db.prepare('SELECT * FROM vacanze WHERE attiva = 1 ORDER BY data_inizio DESC LIMIT 1').get() as any;
 }
@@ -322,6 +330,32 @@ export async function uploadCsvExpenses(csvContent: string) {
   }
 }
 
+// --- IMPOSTAZIONI ---
+export async function deleteAllData() {
+  try {
+    db.prepare('DELETE FROM lavori').run();
+    db.prepare('DELETE FROM lista_spesa').run();
+    db.prepare('DELETE FROM storico_spesa').run();
+    db.prepare('DELETE FROM spese').run();
+    db.prepare('DELETE FROM vacanze').run();
+    db.prepare('DELETE FROM spese_sandro').run();
+    db.prepare('DELETE FROM categorie').run();
+
+    revalidatePath('/');
+    revalidatePath('/expenses');
+    revalidatePath('/holidays');
+    revalidatePath('/shopping-list');
+    revalidatePath('/tasks');
+    revalidatePath('/sandro');
+    revalidatePath('/categories');
+
+    return { success: true, message: 'Tutti i dati sono stati cancellati con successo!' };
+  } catch (error: any) {
+    console.error('Errore durante la cancellazione dei dati:', error);
+    return { success: false, message: `Errore durante la cancellazione dei dati: ${error.message}` };
+  }
+}
+
 // --- CATEGORIE ---
 export async function getCategorie() {
   return db.prepare('SELECT * FROM categorie ORDER BY nome ASC').all() as any[];
@@ -347,7 +381,21 @@ export async function deleteCategoria(id: number) {
 
 // --- DASHBOARD & ANALYTICS ---
 export async function getDashboardChartData() {
-  // Get last 6 months of data
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth() + 1; // Mesi da 1 a 12
+
+  const monthsToFetch = [];
+  for (let i = 0; i < 6; i++) {
+    let month = currentMonth - i;
+    let year = currentYear;
+    if (month <= 0) {
+      month += 12;
+      year -= 1;
+    }
+    monthsToFetch.unshift(`${year}-${String(month).padStart(2, '0')}`);
+  }
+
   const data = db.prepare(`
     SELECT 
       strftime('%Y-%m', data) as month,
@@ -355,12 +403,31 @@ export async function getDashboardChartData() {
       SUM(CASE WHEN extra = 1 THEN importo ELSE 0 END) as extra,
       SUM(CASE WHEN id_vacanza > 0 AND extra = 0 THEN importo ELSE 0 END) as vacanza
     FROM spese
+    WHERE month IN (${monthsToFetch.map(m => `'${m}'`).join(',')})
     GROUP BY month
-    ORDER BY month DESC
-    LIMIT 6
+    ORDER BY month ASC
   `).all() as any[];
+
+  // Fill in missing months with zero values
+  const fullData = monthsToFetch.map(month => {
+    const existing = data.find(d => d.month === month);
+    return existing || { month, normali: 0, extra: 0, vacanza: 0 };
+  });
   
-  return data.reverse();
+  return fullData;
+}
+
+export async function getCurrentMonthExpensesTotal() {
+  const today = new Date();
+  const currentMonthYear = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+
+  const result = db.prepare(`
+    SELECT SUM(importo) as total
+    FROM spese
+    WHERE strftime('%Y-%m', data) = ?
+  `).get(currentMonthYear) as { total: number | null };
+
+  return result.total || 0;
 }
 
 export async function getMonthlyAverage() {

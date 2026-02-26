@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { uploadCsvExpenses } from '@/lib/actions';
+import { uploadCsvExpenses, deleteAllData } from '@/lib/actions';
 import { UploadCloud, FileText, CheckCircle2, XCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -11,12 +11,34 @@ export default function SettingsPage() {
   const [isDragOver, setIsDragOver] = useState(false);
   const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const [deleteStatus, setDeleteStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+  const [deleteMessage, setDeleteMessage] = useState('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
       setStatus('idle');
       setMessage('');
+    }
+  };
+
+  const handleDeleteAllData = async () => {
+    if (window.confirm('Sei sicuro di voler cancellare TUTTI i dati? Questa operazione è irreversibile!')) {
+      setDeleteStatus('pending');
+      setDeleteMessage('Cancellazione in corso...');
+      try {
+        const result = await deleteAllData();
+        if (result.success) {
+          setDeleteStatus('success');
+          setDeleteMessage(result.message || 'Tutti i dati sono stati cancellati con successo!');
+        } else {
+          setDeleteStatus('error');
+          setDeleteMessage(result.message || 'Errore durante la cancellazione dei dati.');
+        }
+      } catch (error: any) {
+        setDeleteStatus('error');
+        setDeleteMessage(`Errore: ${error.message || 'Qualcosa è andato storto.'}`);
+      }
     }
   };
 
@@ -128,6 +150,40 @@ export default function SettingsPage() {
             >
               {status === 'success' ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
               <p className="text-sm font-medium">{message}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </section>
+
+      <section className="bg-white p-8 rounded-3xl border border-rose-100 shadow-sm space-y-6">
+        <h2 className="text-2xl font-display font-bold text-rose-700">Zona Pericolosa</h2>
+        <p className="text-rose-600">Questa azione cancellerà in modo permanente TUTTI i dati dal database. Procedi con cautela.</p>
+        <button
+          onClick={handleDeleteAllData}
+          disabled={deleteStatus === 'pending'}
+          className="w-full px-8 py-4 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          {deleteStatus === 'pending' ? (
+            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          ) : (
+            <XCircle size={20} />
+          )}
+          {deleteStatus === 'pending' ? 'Cancellazione in corso...' : 'Cancella Tutti i Dati'}
+        </button>
+
+        <AnimatePresence>
+          {deleteStatus !== 'idle' && deleteMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className={`p-4 rounded-xl flex items-center gap-3 ${deleteStatus === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}
+            >
+              {deleteStatus === 'success' ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+              <p className="text-sm font-medium">{deleteMessage}</p>
             </motion.div>
           )}
         </AnimatePresence>

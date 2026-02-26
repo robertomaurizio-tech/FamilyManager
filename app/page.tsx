@@ -1,4 +1,4 @@
-import { getSpese, getLavori, getListaSpesa, getVacanze, getCategorie, getMonthlyAverage, getDashboardChartData } from '@/lib/actions';
+import { getSpese, getLavori, getListaSpesa, getVacanze, getCategorie, getMonthlyAverage, getDashboardChartData, getCurrentMonthExpensesTotal } from '@/lib/actions';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import DashboardChart from '@/components/DashboardChart';
 import { 
@@ -20,12 +20,7 @@ export default async function Dashboard() {
   const categorie = await getCategorie();
   const monthlyAverage = await getMonthlyAverage();
   const chartData = await getDashboardChartData();
-
-  const totalSpeseResult = await getSpese(0, 1, 10000); 
-  const totalSpese = totalSpeseResult.items.reduce((acc, curr) => acc + curr.importo, 0);
-  const speseMese = totalSpeseResult.items
-    .filter(s => new Date(s.data).getMonth() === new Date().getMonth())
-    .reduce((acc, curr) => acc + curr.importo, 0);
+  const speseMese = await getCurrentMonthExpensesTotal();
   
   const lavoriDaFare = lavori.filter(l => !l.fatto).length;
   const articoliSpesa = listaSpesa.length;

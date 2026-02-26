@@ -36,9 +36,9 @@ export default function Sidebar() {
   return (
     <>
       {/* Mobile Header */}
-      <div className="lg:hidden flex items-center justify-between p-4 bg-white border-b border-zinc-200 sticky top-0 z-50">
-        <button onClick={() => setIsOpen(!isOpen)} className="p-2 -ml-2">
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
+      <div className="lg:hidden fixed inset-x-0 top-0 z-50 flex items-center justify-between py-3 px-4 bg-white border-b border-zinc-200">
+        <button onClick={() => setIsOpen(!isOpen)} className="py-1 px-2 -ml-2">
+          <Menu size={24} />
         </button>
         <span className="font-bold text-xl tracking-tight">FamilyManager</span>
         <div className="w-10" /> {/* Placeholder to balance space */}
@@ -49,6 +49,13 @@ export default function Sidebar() {
         "fixed inset-y-0 left-0 z-40 w-64 bg-zinc-50 border-r border-zinc-200 transition-transform lg:translate-x-0",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
+        {/* Sidebar Header for Mobile */}
+        <div className="lg:hidden flex items-center justify-between py-2 px-4 bg-zinc-100 border-b border-zinc-200">
+          <h1 className="text-xl font-bold tracking-tighter text-zinc-900">FamilyManager</h1>
+          <button onClick={() => setIsOpen(false)} className="py-1 px-2 -mr-2">
+            <X size={24} />
+          </button>
+        </div>
         <div className="flex flex-col h-full p-6">
           <div className="mb-10">
             <h1 className="text-2xl font-bold tracking-tighter text-zinc-900">FamilyManager</h1>

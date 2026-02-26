@@ -12,6 +12,7 @@ export default function ExpensesPage({
   total, 
   vacanze, 
   activeVacanza,
+  activeVacanzeList,
   categorie,
   currentPage,
   currentVacanzaId,
@@ -21,6 +22,7 @@ export default function ExpensesPage({
   total: number,
   vacanze: any[],
   activeVacanza: any,
+  activeVacanzeList: any[],
   categorie: any[],
   currentPage: number,
   currentVacanzaId: number,
@@ -136,7 +138,7 @@ export default function ExpensesPage({
             className="flex-1 min-w-[120px] bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
           >
             <option value="0">Tutte le spese</option>
-            {vacanze.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
+            {activeVacanzeList.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
           </select>
         </div>
 
@@ -225,7 +227,7 @@ export default function ExpensesPage({
                     className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-zinc-900 outline-none appearance-none"
                   >
                     <option value="0">Nessuna</option>
-                    {vacanze.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
+                    {activeVacanzeList.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
                   </select>
                 </div>
               </div>

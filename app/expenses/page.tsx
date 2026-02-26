@@ -1,4 +1,4 @@
-import { getSpese, getVacanze, getActiveVacanza, getCategorie } from '@/lib/actions';
+import { getSpese, getVacanze, getActiveVacanza, getCategorie, getActiveVacanze } from '@/lib/actions';
 import Expenses from '@/components/Expenses';
 
 export default async function Page({
@@ -12,8 +12,9 @@ export default async function Page({
   const search = params.q || '';
   
   const { items, total } = await getSpese(idVacanza, page, 10, search);
-  const vacanze = await getVacanze();
+  const vacanze = await getVacanze(); // Keep for other uses if needed, or remove if only active are ever used
   const activeVacanza = await getActiveVacanza();
+  const activeVacanzeList = await getActiveVacanze(); // Nuova chiamata per le vacanze attive
   const categorie = await getCategorie();
   
   return (
@@ -22,6 +23,7 @@ export default async function Page({
       total={total} 
       vacanze={vacanze} 
       activeVacanza={activeVacanza}
+      activeVacanzeList={activeVacanzeList} // Passa le vacanze attive
       categorie={categorie}
       currentPage={page}
       currentVacanzaId={idVacanza}
