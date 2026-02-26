@@ -382,10 +382,10 @@ export async function deleteCategoria(id: number) {
 export async function saveLoginSequence(sequence: string[]) {
   try {
     const sequenceJson = JSON.stringify(sequence);
-    await sql`
-      INSERT INTO impostazioni (chiave, valore) VALUES ('login_sequence', ${sequenceJson})
-      ON CONFLICT(chiave) DO UPDATE SET valore = ${sequenceJson};
-    `;
+    db.prepare(`
+      INSERT INTO impostazioni (chiave, valore) VALUES ('login_sequence', ?)
+      ON CONFLICT(chiave) DO UPDATE SET valore = excluded.valore
+    `).run(sequenceJson);
     revalidatePath('/settings');
     return { success: true };
   } catch (error) {
@@ -396,9 +396,9 @@ export async function saveLoginSequence(sequence: string[]) {
 
 export async function getLoginSequence() {
   try {
-    const result = await sql`SELECT valore FROM impostazioni WHERE chiave = 'login_sequence'`;
-    if (result.rows.length > 0) {
-      return JSON.parse(result.rows[0].valore);
+    const result = db.prepare('SELECT valore FROM impostazioni WHERE chiave = ?').get('login_sequence') as { valore: string } | undefined;
+    if (result) {
+      return JSON.parse(result.valore);
     }
     return ['Star', 'Heart', 'Sun', 'Moon']; // Default sequence
   } catch (error) {
