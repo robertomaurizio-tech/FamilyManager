@@ -377,6 +377,7 @@ export async function deleteCategoria(id: number) {
   db.prepare('DELETE FROM categorie WHERE id = ?').run(id);
   revalidatePath('/categories');
   revalidatePath('/expenses');
+}
 
 export async function saveLoginSequence(sequence: string[]) {
   try {
