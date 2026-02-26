@@ -45,7 +45,7 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
         </div>
         <button 
           onClick={() => setIsAdding(!isAdding)}
-          className="p-4 bg-zinc-900 text-white rounded-2xl shadow-lg hover:bg-zinc-800 transition-all flex items-center gap-2"
+          className="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg hover:bg-indigo-700 transition-all flex items-center gap-2"
         >
           <Plus size={24} />
           <span className="font-bold hidden sm:inline">{editingId ? 'Modifica Categoria' : 'Nuova Categoria'}</span>
@@ -69,7 +69,7 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
                     required
                     value={formData.nome}
                     onChange={e => setFormData({...formData, nome: e.target.value})}
-                    className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-zinc-900 outline-none"
+                    className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none"
                     placeholder="Esempio: Ristorante, Auto, Regali..."
                   />
                 </div>
@@ -93,13 +93,13 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
                 <button 
                   type="button"
                   onClick={cancel}
-                  className="px-6 py-3 text-zinc-500 font-bold hover:text-zinc-900 transition-colors"
+                  className="px-6 py-3 text-zinc-500 font-bold hover:text-indigo-600 transition-colors"
                 >
                   Annulla
                 </button>
                 <button 
                   type="submit"
-                  className="px-8 py-3 bg-zinc-900 text-white rounded-xl font-bold hover:bg-zinc-800 transition-all"
+                  className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all"
                 >
                   {editingId ? 'Aggiorna' : 'Salva'}
                 </button>
@@ -120,12 +120,12 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
                 className="w-10 h-10 rounded-2xl shadow-inner"
                 style={{ backgroundColor: cat.colore }}
               />
-              <span className="font-bold text-zinc-900">{cat.nome}</span>
+              <span className="font-bold text-indigo-600">{cat.nome}</span>
             </div>
             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <button 
                 onClick={() => startEdit(cat)}
-                className="p-2 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 rounded-xl transition-all"
+                className="p-2 text-zinc-400 hover:text-indigo-600 hover:bg-zinc-50 rounded-xl transition-all"
               >
                 <Edit2 size={18} />
               </button>

@@ -77,7 +77,7 @@ export default function SandroExpenses({
                 type="date"
                 value={formData.data}
                 onChange={e => setFormData({...formData, data: e.target.value})}
-                className="w-full lg:w-40 px-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-sm"
+                className="w-full lg:w-40 px-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
                 required
               />
               <input
@@ -85,7 +85,7 @@ export default function SandroExpenses({
                 placeholder="Descrizione"
                 value={formData.descrizione}
                 onChange={e => setFormData({...formData, descrizione: e.target.value})}
-                className="flex-1 min-w-0 px-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-sm"
+                className="flex-1 min-w-0 px-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
                 required
               />
               <div className="flex gap-2 w-full lg:w-auto">
@@ -95,13 +95,13 @@ export default function SandroExpenses({
                   placeholder="Importo"
                   value={formData.importo}
                   onChange={e => setFormData({...formData, importo: e.target.value})}
-                  className="w-full lg:w-32 px-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-sm"
+                  className="w-full lg:w-32 px-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
                   required
                 />
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-4 bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 disabled:opacity-50 transition-colors flex-shrink-0"
+                  className="px-4 bg-zinc-900 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition-colors flex-shrink-0"
                 >
                   <Plus size={20} />
                 </button>
@@ -135,12 +135,12 @@ export default function SandroExpenses({
                       <Clock size={20} />
                     </div>
                     <div>
-                      <p className="font-bold text-zinc-900">{item.descrizione}</p>
+                      <p className="font-bold text-indigo-600">{item.descrizione}</p>
                       <p className="text-xs text-zinc-500">{formatDate(item.data)}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="font-mono font-bold text-zinc-900">
+                    <span className="font-mono font-bold text-indigo-600">
                       {formatCurrency(item.importo)}
                     </span>
                     <div className="flex gap-1">
@@ -182,7 +182,7 @@ export default function SandroExpenses({
                       <CheckCircle2 size={20} />
                     </div>
                     <div>
-                      <p className="font-bold text-zinc-900">Totale Pagato</p>
+                      <p className="font-bold text-indigo-600">Totale Pagato</p>
                       <p className="text-xs text-zinc-500">Data saldo: {formatDate(p.data_pagamento)}</p>
                     </div>
                   </div>
@@ -199,7 +199,7 @@ export default function SandroExpenses({
         </div>
 
         <div className="space-y-6">
-          <div className="bg-zinc-900 text-white p-8 rounded-3xl shadow-xl relative overflow-hidden sticky top-8">
+          <div className="bg-indigo-600 text-white p-8 rounded-3xl shadow-xl relative overflow-hidden sticky top-8">
             <div className="relative z-10">
               <Wallet className="mb-4 opacity-50" size={32} />
               <p className="text-zinc-400 font-medium uppercase tracking-wider text-xs">Totale da pagare</p>

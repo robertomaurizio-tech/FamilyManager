@@ -121,7 +121,7 @@ export default function ExpensesPage({
             setIsAdding(!isAdding);
             if (isAdding) setEditingId(null);
           }}
-          className="p-4 bg-zinc-900 text-white rounded-2xl shadow-lg hover:bg-zinc-800 transition-all flex items-center gap-2"
+          className="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg hover:bg-indigo-700 transition-all flex items-center gap-2"
         >
           <Plus size={24} />
           <span className="font-bold hidden sm:inline">{editingId ? 'Modifica Spesa' : 'Nuova Spesa'}</span>
@@ -135,7 +135,7 @@ export default function ExpensesPage({
           <select
             value={currentVacanzaId.toString()}
             onChange={e => handleVacanzaFilter(e.target.value)}
-            className="flex-1 min-w-[120px] bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            className="flex-1 min-w-[120px] bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
           >
             <option value="0">Tutte le spese</option>
             {activeVacanzeList.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
@@ -149,7 +149,7 @@ export default function ExpensesPage({
             placeholder="Cerca per nota o categoria..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="flex-1 bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            className="flex-1 bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
           />
           <button type="submit" className="hidden">Cerca</button>
         </form>
@@ -175,7 +175,7 @@ export default function ExpensesPage({
                       required
                       value={formData.importo}
                       onChange={e => setFormData({...formData, importo: e.target.value})}
-                      className="w-full pl-12 pr-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-zinc-900 outline-none"
+                      className="w-full pl-12 pr-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none"
                     />
                   </div>
                 </div>
@@ -187,7 +187,7 @@ export default function ExpensesPage({
                     <select
                       value={formData.categoria}
                       onChange={e => setFormData({...formData, categoria: e.target.value})}
-                      className="w-full pl-12 pr-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-zinc-900 outline-none appearance-none"
+                      className="w-full pl-12 pr-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none appearance-none"
                     >
                       {categorie.map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)}
                     </select>
@@ -203,7 +203,7 @@ export default function ExpensesPage({
                       required
                       value={formData.data}
                       onChange={e => setFormData({...formData, data: e.target.value})}
-                      className="w-full pl-12 pr-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-zinc-900 outline-none"
+                      className="w-full pl-12 pr-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none"
                     />
                   </div>
                 </div>
@@ -215,7 +215,7 @@ export default function ExpensesPage({
                     value={formData.note}
                     onChange={e => setFormData({...formData, note: e.target.value})}
                     placeholder="Esempio: Spesa settimanale Conad"
-                    className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-zinc-900 outline-none"
+                    className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none"
                   />
                 </div>
 
@@ -224,7 +224,7 @@ export default function ExpensesPage({
                   <select
                     value={formData.id_vacanza}
                     onChange={e => setFormData({...formData, id_vacanza: e.target.value})}
-                    className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-zinc-900 outline-none appearance-none"
+                    className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none appearance-none"
                   >
                     <option value="0">Nessuna</option>
                     {activeVacanzeList.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
@@ -238,7 +238,7 @@ export default function ExpensesPage({
                     type="checkbox" 
                     checked={formData.extra}
                     onChange={e => setFormData({...formData, extra: e.target.checked})}
-                    className="w-5 h-5 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900" 
+                    className="w-5 h-5 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-600" 
                   />
                   <span className="text-sm font-medium text-zinc-700">Spesa Extra</span>
                 </label>
@@ -251,13 +251,13 @@ export default function ExpensesPage({
                     setIsAdding(false);
                     setEditingId(null);
                   }}
-                  className="px-6 py-3 text-zinc-500 font-bold hover:text-zinc-900 transition-colors"
+                  className="px-6 py-3 text-zinc-500 font-bold hover:text-indigo-600 transition-colors"
                 >
                   Annulla
                 </button>
                 <button 
                   type="submit"
-                  className="px-8 py-3 bg-zinc-900 text-white rounded-xl font-bold hover:bg-zinc-800 transition-all"
+                  className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all"
                 >
                   {editingId ? 'Aggiorna Spesa' : 'Salva Spesa'}
                 </button>
@@ -292,21 +292,21 @@ export default function ExpensesPage({
                       {spesa.categoria}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm font-medium text-zinc-900">
+                  <td className="px-6 py-4 text-sm font-medium text-indigo-600">
                     {spesa.note}
                     {spesa.extra === 1 && <span className="ml-2 text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold uppercase">Extra</span>}
                   </td>
                   <td className="px-6 py-4 text-sm text-zinc-400">
                     {vacanze.find(v => v.id === spesa.id_vacanza)?.nome || '-'}
                   </td>
-                  <td className="px-6 py-4 text-sm font-bold text-zinc-900 text-right">
+                  <td className="px-6 py-4 text-sm font-bold text-indigo-600 text-right">
                     {formatCurrency(spesa.importo)}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
                         onClick={() => handleEdit(spesa)}
-                        className="p-2 text-zinc-300 hover:text-zinc-900 transition-colors"
+                        className="p-2 text-zinc-300 hover:text-indigo-600 transition-colors"
                         title="Modifica"
                       >
                         <Edit2 size={16} />
@@ -335,7 +335,7 @@ export default function ExpensesPage({
         {totalPages > 1 && (
           <div className="px-6 py-4 bg-zinc-50 border-t border-zinc-100 flex items-center justify-between">
             <p className="text-sm text-zinc-500">
-              Pagina <span className="font-bold text-zinc-900">{currentPage}</span> di <span className="font-bold text-zinc-900">{totalPages}</span>
+              Pagina <span className="font-bold text-indigo-600">{currentPage}</span> di <span className="font-bold text-indigo-600">{totalPages}</span>
             </p>
             <div className="flex gap-2">
               <button

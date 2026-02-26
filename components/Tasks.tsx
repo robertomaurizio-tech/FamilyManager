@@ -37,12 +37,12 @@ export default function TasksPage({ lavori }: { lavori: any[] }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Nuovo lavoro da fare..."
-          className="flex-1 px-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-zinc-900 transition-all"
+          className="flex-1 px-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
         />
         <button
           type="submit"
           disabled={isPending}
-          className="px-8 py-4 bg-zinc-900 text-white rounded-2xl font-bold hover:bg-zinc-800 transition-colors flex items-center gap-2 disabled:opacity-50"
+          className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50"
         >
           <Plus size={20} />
           <span>Aggiungi</span>
@@ -74,7 +74,7 @@ export default function TasksPage({ lavori }: { lavori: any[] }) {
                 </div>
                 <span className={cn(
                   "font-medium text-lg",
-                  item.fatto ? "line-through text-zinc-400" : "text-zinc-900"
+                  item.fatto ? "line-through text-zinc-400" : "text-indigo-600"
                 )}>
                   {item.lavoro}
                 </span>

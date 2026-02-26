@@ -21,7 +21,7 @@ import { motion, AnimatePresence } from 'motion/react';
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Spese', href: '/expenses', icon: Receipt },
-  { name: 'Categorie', href: '/categories', icon: Tag },
+
   { name: 'Lista Spesa', href: '/shopping-list', icon: ShoppingCart },
   { name: 'Lavori', href: '/tasks', icon: CheckSquare },
   { name: 'Vacanze', href: '/holidays', icon: Palmtree },
@@ -51,14 +51,14 @@ export default function Sidebar() {
       )}>
         {/* Sidebar Header for Mobile */}
         <div className="lg:hidden flex items-center justify-between py-2 px-4 bg-zinc-100 border-b border-zinc-200">
-          <h1 className="text-xl font-bold tracking-tighter text-zinc-900">FamilyManager</h1>
+          <h1 className="text-xl font-bold tracking-tighter text-indigo-600">FamilyManager</h1>
           <button onClick={() => setIsOpen(false)} className="py-1 px-2 -mr-2">
             <X size={24} />
           </button>
         </div>
         <div className="flex flex-col h-full p-6">
           <div className="mb-10">
-            <h1 className="text-2xl font-bold tracking-tighter text-zinc-900">FamilyManager</h1>
+            <h1 className="text-2xl font-bold tracking-tighter text-indigo-600">FamilyManager</h1>
             <p className="text-xs text-zinc-500 uppercase tracking-widest mt-1 font-semibold">Home Management</p>
           </div>
 
@@ -73,13 +73,13 @@ export default function Sidebar() {
                   className={cn(
                     "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group",
                     isActive 
-                      ? "bg-zinc-900 text-white shadow-md" 
-                      : "text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900"
+                      ? "bg-indigo-600 text-white shadow-md" 
+                      : "text-zinc-600 hover:bg-zinc-200 hover:text-indigo-600"
                   )}
                 >
                   <item.icon size={20} className={cn(
                     "transition-colors",
-                    isActive ? "text-white" : "text-zinc-400 group-hover:text-zinc-900"
+                    isActive ? "text-white" : "text-zinc-400 group-hover:text-indigo-600"
                   )} />
                   <span className="font-medium">{item.name}</span>
                   {isActive && (

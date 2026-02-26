@@ -2,8 +2,9 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { uploadCsvExpenses, deleteAllData } from '@/lib/actions';
-import { UploadCloud, FileText, CheckCircle2, XCircle } from 'lucide-react';
+import { uploadCsvExpenses, deleteAllData, getCategorie } from '@/lib/actions';
+import CategoriesManager from '@/components/CategoriesManager';
+import { UploadCloud, FileText, CheckCircle2, XCircle, Home, Heart, Star, Sun, Moon, Cloud, Lock, Key, Smile } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function SettingsPage() {
@@ -13,6 +14,44 @@ export default function SettingsPage() {
   const [message, setMessage] = useState('');
   const [deleteStatus, setDeleteStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
   const [deleteMessage, setDeleteMessage] = useState('');
+  const [categories, setCategories] = useState([]);
+
+  React.useEffect(() => {
+    const fetchCategories = async () => {
+      const cats = await getCategorie();
+      setCategories(cats);
+    };
+    fetchCategories();
+  }, []);
+  const [loginSequence, setLoginSequence] = useState(['Star', 'Heart', 'Sun', 'Moon']); // Default or loaded from storage
+
+  const availableIcons = [
+    { name: 'Home', component: Home },
+    { name: 'Heart', component: Heart },
+    { name: 'Star', component: Star },
+    { name: 'Sun', component: Sun },
+    { name: 'Moon', component: Moon },
+    { name: 'Cloud', component: Cloud },
+    { name: 'Lock', component: Lock },
+    { name: 'Key', component: Key },
+    { name: 'Smile', component: Smile },
+  ];
+
+  const handleIconSelect = (iconName: string) => {
+    if (loginSequence.length >= 4) return;
+    setLoginSequence([...loginSequence, iconName]);
+  };
+
+  const handleSequenceReset = () => {
+    setLoginSequence([]);
+  };
+
+  const handleSequenceSave = () => {
+    // Here you would save the sequence to a database or local storage
+    // For this example, we'll just log it.
+    console.log('Saved sequence:', loginSequence);
+    alert('Sequenza salvata!');
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -104,11 +143,11 @@ export default function SettingsPage() {
           }}
           onDragLeave={() => setIsDragOver(false)}
           onDrop={handleDrop}
-          className={`flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-2xl transition-colors ${isDragOver ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200 bg-white'}`}
+          className={`flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-2xl transition-colors ${isDragOver ? 'border-indigo-600 bg-indigo-50' : 'border-zinc-200 bg-white'}`}
         >
           <UploadCloud size={48} className="text-zinc-400 mb-4" />
           <p className="text-zinc-600 mb-2">Trascina qui il tuo file CSV o</p>
-          <label className="px-6 py-3 bg-zinc-900 text-white rounded-xl font-bold hover:bg-zinc-800 transition-all cursor-pointer">
+          <label className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all cursor-pointer">
             Scegli un file
             <input type="file" accept=".csv" onChange={handleFileChange} className="hidden" />
           </label>
@@ -153,6 +192,49 @@ export default function SettingsPage() {
             </motion.div>
           )}
         </AnimatePresence>
+      </section>
+
+      <section className="bg-white p-8 rounded-3xl border border-zinc-100 shadow-sm space-y-6">
+        <h2 className="text-2xl font-display font-bold">Gestione Categorie</h2>
+        <CategoriesManager initialCategories={categories} />
+      </section>
+
+      <section className="bg-white p-8 rounded-3xl border border-zinc-100 shadow-sm space-y-6">
+        <h2 className="text-2xl font-display font-bold">Configura Accesso con Icone</h2>
+        <p className="text-zinc-600">Seleziona una sequenza di 4 icone per il tuo accesso sicuro. Ricorda l'ordine!</p>
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider">Sequenza Attuale</h3>
+            <div className="mt-2 flex items-center gap-4 p-4 bg-zinc-50 rounded-xl border border-zinc-200">
+              {loginSequence.map((iconName, index) => {
+                const Icon = availableIcons.find(i => i.name === iconName)?.component;
+                return Icon ? <Icon key={index} size={24} className="text-indigo-600" /> : null;
+              })}
+              {loginSequence.length === 0 && <p className="text-sm text-zinc-400">Nessuna icona selezionata.</p>}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider">Icone Disponibili</h3>
+            <div className="mt-2 grid grid-cols-5 sm:grid-cols-9 gap-2">
+              {availableIcons.map(icon => (
+                <button 
+                  key={icon.name} 
+                  onClick={() => handleIconSelect(icon.name)}
+                  disabled={loginSequence.length >= 4}
+                  className="aspect-square flex items-center justify-center rounded-lg bg-white border border-zinc-200 text-zinc-500 hover:bg-indigo-50 hover:text-indigo-600 transition-colors disabled:opacity-50 disabled:hover:bg-white"
+                >
+                  <icon.component size={24} />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-4">
+            <button onClick={handleSequenceReset} className="px-6 py-3 text-zinc-500 font-bold hover:text-indigo-600 transition-colors">Resetta</button>
+            <button onClick={handleSequenceSave} disabled={loginSequence.length !== 4} className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all disabled:opacity-50">Salva Sequenza</button>
+          </div>
+        </div>
       </section>
 
       <section className="bg-white p-8 rounded-3xl border border-rose-100 shadow-sm space-y-6">

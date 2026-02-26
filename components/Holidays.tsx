@@ -183,7 +183,7 @@ export default function HolidaysPage({ vacanze }: { vacanze: any[] }) {
               </div>
             </div>
 
-            <h3 className="text-2xl font-bold font-display text-zinc-900">{v.nome}</h3>
+            <h3 className="text-2xl font-bold font-display text-indigo-600">{v.nome}</h3>
             <p className="text-emerald-600 font-bold mt-1">
               Totale speso: {formatCurrency(v.totaleSpeso)}
             </p>

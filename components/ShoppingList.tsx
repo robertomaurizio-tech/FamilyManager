@@ -46,7 +46,7 @@ export default function ShoppingList({
                 <button
                   key={i}
                   onClick={() => handleAdd(undefined, s.articolo)}
-                  className="px-3 py-1.5 bg-white border border-zinc-200 rounded-full text-xs font-bold text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-all shadow-sm flex items-center gap-1.5"
+                  className="px-3 py-1.5 bg-white border border-zinc-200 rounded-full text-xs font-bold text-zinc-600 hover:border-indigo-600 hover:text-indigo-600 transition-all shadow-sm flex items-center gap-1.5"
                 >
                   <Plus size={12} />
                   {s.articolo}
@@ -64,13 +64,13 @@ export default function ShoppingList({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Aggiungi un articolo..."
-                className="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-zinc-900 transition-all text-base"
+                className="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all text-base"
               />
             </div>
             <button
               type="submit"
               disabled={isPending}
-              className="px-6 py-3 bg-zinc-900 text-white rounded-2xl font-bold hover:bg-zinc-800 transition-colors flex items-center gap-2 disabled:opacity-50 text-sm"
+              className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50 text-sm"
             >
               <Plus size={20} />
               <span className="hidden sm:inline">Aggiungi</span>
@@ -94,14 +94,14 @@ export default function ShoppingList({
                 <button
                   onClick={() => moveArticolo(item.id, 'up')}
                   disabled={index === 0}
-                  className="p-1 text-zinc-300 hover:text-zinc-900 disabled:opacity-0 transition-colors"
+                  className="p-1 text-zinc-300 hover:text-indigo-600 disabled:opacity-0 transition-colors"
                 >
                   <ChevronUp size={16} />
                 </button>
                 <button
                   onClick={() => moveArticolo(item.id, 'down')}
                   disabled={index === listaSpesa.length - 1}
-                  className="p-1 text-zinc-300 hover:text-zinc-900 disabled:opacity-0 transition-colors"
+                  className="p-1 text-zinc-300 hover:text-indigo-600 disabled:opacity-0 transition-colors"
                 >
                   <ChevronDown size={16} />
                 </button>
@@ -111,7 +111,7 @@ export default function ShoppingList({
                 <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
                   <CheckCircle2 size={20} />
                 </div>
-                <span className="font-bold text-lg text-zinc-900">{item.articolo}</span>
+                <span className="font-bold text-lg text-indigo-600">{item.articolo}</span>
               </div>
 
               <button

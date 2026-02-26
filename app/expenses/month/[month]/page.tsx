@@ -27,7 +27,7 @@ export default async function MonthlyDetailPage({ params }: { params: Promise<{ 
       </header>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-zinc-900 text-white p-6 rounded-3xl shadow-xl">
+        <div className="bg-indigo-600 text-white p-6 rounded-3xl shadow-xl">
           <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest mb-1">Totale Mese</p>
           <p className="text-3xl font-mono font-bold">
             {formatCurrency(detail.expenses.reduce((acc, curr) => acc + curr.importo, 0))}
@@ -63,7 +63,7 @@ export default async function MonthlyDetailPage({ params }: { params: Promise<{ 
                     />
                     <span className="font-medium text-zinc-700">{c.categoria}</span>
                   </div>
-                  <span className="font-mono font-bold text-zinc-900">{formatCurrency(c.totale)}</span>
+                  <span className="font-mono font-bold text-indigo-600">{formatCurrency(c.totale)}</span>
                 </div>
               );
             })}
@@ -79,7 +79,7 @@ export default async function MonthlyDetailPage({ params }: { params: Promise<{ 
             {detail.byVacanza.map((v, i) => (
               <div key={i} className="flex items-center justify-between">
                 <span className="font-medium text-zinc-700">{v.nome}</span>
-                <span className="font-mono font-bold text-zinc-900">{formatCurrency(v.totale)}</span>
+                <span className="font-mono font-bold text-indigo-600">{formatCurrency(v.totale)}</span>
               </div>
             ))}
             {detail.byVacanza.length === 0 && (
@@ -125,7 +125,7 @@ export default async function MonthlyDetailPage({ params }: { params: Promise<{ 
                     </td>
                     <td className="px-8 py-4">
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-zinc-900">{spesa.note || '-'}</span>
+                        <span className="text-sm font-bold text-indigo-600">{spesa.note || '-'}</span>
                         <div className="flex gap-2 mt-1">
                           {spesa.extra === 1 && (
                             <span className="inline-flex items-center gap-1 text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold uppercase">
@@ -140,7 +140,7 @@ export default async function MonthlyDetailPage({ params }: { params: Promise<{ 
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-4 text-sm font-bold text-zinc-900 text-right">
+                    <td className="px-8 py-4 text-sm font-bold text-indigo-600 text-right">
                       {formatCurrency(spesa.importo)}
                     </td>
                   </tr>

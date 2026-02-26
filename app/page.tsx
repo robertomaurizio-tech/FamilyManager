@@ -74,7 +74,7 @@ export default async function Dashboard() {
           <section className="bg-zinc-50 rounded-3xl p-6 border border-zinc-100">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold font-display">Ultime Spese</h2>
-              <button className="text-sm font-semibold text-zinc-500 hover:text-zinc-900">Vedi tutte</button>
+              <button className="text-sm font-semibold text-zinc-500 hover:text-indigo-600">Vedi tutte</button>
             </div>
             <div className="space-y-4">
               {spese.slice(0, 5).map((spesa) => {
@@ -89,7 +89,7 @@ export default async function Dashboard() {
                         <Tag size={18} className="text-white drop-shadow-sm" />
                       </div>
                       <div>
-                        <p className="font-bold text-zinc-900">
+                        <p className="font-bold text-indigo-600">
                           {spesa.note || spesa.categoria}
                           {spesa.id_vacanza > 0 && (
                             <span className="ml-2 inline-flex items-center gap-1 text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold uppercase">
@@ -101,7 +101,7 @@ export default async function Dashboard() {
                         <p className="text-xs text-zinc-500">{formatDate(spesa.data)} • {spesa.categoria}</p>
                       </div>
                     </div>
-                    <p className="font-bold text-zinc-900">{formatCurrency(spesa.importo)}</p>
+                    <p className="font-bold text-indigo-600">{formatCurrency(spesa.importo)}</p>
                   </div>
                 );
               })}
@@ -113,7 +113,7 @@ export default async function Dashboard() {
         </div>
 
         <div className="space-y-8">
-          <section className="bg-zinc-900 text-white rounded-3xl p-6 shadow-xl">
+          <section className="bg-indigo-600 text-white rounded-3xl p-6 shadow-xl">
             <div className="flex items-center gap-3 mb-4">
               <Palmtree className="text-emerald-400" />
               <h2 className="text-xl font-bold font-display">Vacanze Attive</h2>
