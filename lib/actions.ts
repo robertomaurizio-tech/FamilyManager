@@ -406,10 +406,6 @@ export async function getLoginSequence() {
     return ['Star', 'Heart', 'Sun', 'Moon']; // Default on error
   }
 }
-  db.prepare('DELETE FROM categorie WHERE id = ?').run(id);
-  revalidatePath('/categories');
-  revalidatePath('/expenses');
-}
 
 // --- DASHBOARD & ANALYTICS ---
 export async function getDashboardChartData() {
