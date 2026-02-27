@@ -7,10 +7,20 @@ const db = new Database(dbPath);
 // Function to apply migrations
 const applyMigrations = () => {
   const fs = require('fs');
-  const migrationsDir = path.join(process.cwd(), 'migrations');
+  const cwd = process.cwd();
+  console.log(`[DB INIT] Current working directory: ${cwd}`);
+  try {
+    const filesInCwd = fs.readdirSync(cwd);
+    console.log(`[DB INIT] Files in CWD: ${filesInCwd.join(', ')}`);
+  } catch (e) {
+    console.error(`[DB INIT] Could not read CWD:`, e);
+  }
+
+  const migrationsDir = path.join(cwd, 'migrations');
+  console.log(`[DB INIT] Looking for migrations in: ${migrationsDir}`);
 
   if (!fs.existsSync(migrationsDir)) {
-    console.log('Nessuna cartella migrations trovata, salto le migrazioni.');
+    console.log('[DB INIT] Nessuna cartella migrations trovata, salto le migrazioni.');
     return;
   }
 
