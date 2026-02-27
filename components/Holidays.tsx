@@ -184,80 +184,78 @@ export default function HolidaysPage({ vacanze }: { vacanze: any[] }) {
       <div className="space-y-6">
         {vacanze.map((v) => (
           <div key={v.id} className={cn(
-            "group relative bg-white p-8 rounded-[2.5rem] border transition-all overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6",
+            "group relative bg-white p-4 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border transition-all overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6",
             v.attiva ? "border-emerald-200 shadow-lg shadow-emerald-50" : "border-zinc-100 opacity-70"
           )}>
-            <div className="flex items-center gap-6 flex-1">
+            <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
               <div className={cn(
-                "p-4 rounded-3xl",
+                "p-3 sm:p-4 rounded-2xl sm:rounded-3xl flex-shrink-0",
                 v.attiva ? "bg-emerald-50 text-emerald-600" : "bg-zinc-50 text-zinc-400"
               )}>
-                <Palmtree size={40} />
+                <Palmtree size={32} className="sm:size-10" />
               </div>
-              <div className="space-y-1">
-                <h3 className="text-2xl font-bold font-display text-indigo-600">{v.nome}</h3>
-                <div className="flex items-center gap-4 text-sm text-zinc-500">
+              <div className="space-y-1 min-w-0">
+                <h3 className="text-xl sm:text-2xl font-bold font-display text-indigo-600 truncate">{v.nome}</h3>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs sm:text-sm text-zinc-500">
                   <div className="flex items-center gap-1.5">
                     <Calendar size={14} />
                     <span>{formatDate(v.data_inizio)}</span>
                   </div>
                   {v.data_fine && (
-                    <>
-                      <span>→</span>
-                      <div className="flex items-center gap-1.5">
-                        <Calendar size={14} />
-                        <span>{formatDate(v.data_fine)}</span>
-                      </div>
-                    </>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-zinc-300">→</span>
+                      <Calendar size={14} />
+                      <span>{formatDate(v.data_fine)}</span>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-8">
-              <div className="text-right">
-                <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Totale Speso</p>
-                <p className="text-2xl font-bold text-emerald-600 font-display">
+            <div className="flex items-center justify-between md:justify-end gap-4 sm:gap-8 border-t md:border-t-0 pt-4 md:pt-0">
+              <div className="text-left md:text-right">
+                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Totale Speso</p>
+                <p className="text-xl sm:text-2xl font-bold text-emerald-600 font-display">
                   {formatCurrency(v.totaleSpeso)}
                 </p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-1 sm:gap-2">
                 <button 
                   onClick={() => openStats(v)}
                   className={cn(
-                    "p-3 rounded-2xl transition-colors",
+                    "p-2 sm:p-3 rounded-xl sm:rounded-2xl transition-colors",
                     v.attiva ? "text-indigo-600 hover:bg-indigo-50" : "text-zinc-400 hover:bg-zinc-50"
                   )}
                   title="Statistiche"
                 >
-                  <BarChart2 size={24} />
+                  <BarChart2 size={20} className="sm:size-6" />
                 </button>
                 <button 
                   onClick={() => handleEdit(v)}
                   className={cn(
-                    "p-3 rounded-2xl transition-colors",
+                    "p-2 sm:p-3 rounded-xl sm:rounded-2xl transition-colors",
                     v.attiva ? "text-emerald-600 hover:bg-emerald-50" : "text-zinc-400 hover:bg-zinc-50"
                   )}
                   title="Modifica"
                 >
-                  <Edit2 size={24} />
+                  <Edit2 size={20} className="sm:size-6" />
                 </button>
                 <button 
                   onClick={() => toggleVacanzaAttiva(v.id, !v.attiva)}
                   className={cn(
-                    "p-3 rounded-2xl transition-colors",
+                    "p-2 sm:p-3 rounded-xl sm:rounded-2xl transition-colors",
                     v.attiva ? "text-emerald-600 hover:bg-emerald-50" : "text-zinc-400 hover:bg-zinc-50"
                   )}
                   title={v.attiva ? "Segna come conclusa" : "Riapri vacanza"}
                 >
-                  {v.attiva ? <CheckCircle2 size={24} /> : <XCircle size={24} />}
+                  {v.attiva ? <CheckCircle2 size={20} className="sm:size-6" /> : <XCircle size={20} className="sm:size-6" />}
                 </button>
                 <button 
                   onClick={() => confirmDelete(v.id)}
-                  className="p-3 text-zinc-300 hover:text-rose-600 hover:bg-rose-50 rounded-2xl transition-all"
+                  className="p-2 sm:p-3 text-zinc-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl sm:rounded-2xl transition-all"
                 >
-                  <Trash2 size={24} />
+                  <Trash2 size={20} className="sm:size-6" />
                 </button>
               </div>
             </div>

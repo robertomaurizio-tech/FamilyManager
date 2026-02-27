@@ -62,7 +62,7 @@ export default async function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          <section className="bg-white rounded-[2.5rem] p-8 border border-zinc-100 shadow-sm">
+          <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-8 border border-zinc-100 shadow-sm">
             <div className="flex items-center gap-3 mb-2">
               <BarChart3 className="text-zinc-400" size={20} />
               <h2 className="text-xl font-bold font-display">Andamento Spese</h2>
@@ -71,7 +71,7 @@ export default async function Dashboard() {
             <DashboardChart data={chartData} />
           </section>
 
-          <section className="bg-zinc-50 rounded-3xl p-6 border border-zinc-100">
+          <section className="bg-zinc-50 rounded-3xl p-4 sm:p-6 border border-zinc-100">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold font-display">Ultime Spese</h2>
               <button className="text-sm font-semibold text-zinc-500 hover:text-indigo-600">Vedi tutte</button>
@@ -80,28 +80,22 @@ export default async function Dashboard() {
               {spese.slice(0, 5).map((spesa) => {
                 const cat = categorie.find(c => c.nome === spesa.categoria);
                 return (
-                  <div key={spesa.id} className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-zinc-100">
-                    <div className="flex items-center gap-4">
+                  <div key={spesa.id} className="flex items-center justify-between p-3 sm:p-4 bg-white rounded-2xl shadow-sm border border-zinc-100">
+                    <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
                       <div 
-                        className="w-10 h-10 rounded-full flex items-center justify-center shadow-inner"
+                        className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center shadow-inner"
                         style={{ backgroundColor: cat?.colore || '#f4f4f5' }}
                       >
                         <Tag size={18} className="text-white drop-shadow-sm" />
                       </div>
-                      <div>
-                        <p className="font-bold text-indigo-600">
+                      <div className="min-w-0">
+                        <p className="font-bold text-indigo-600 truncate">
                           {spesa.note || spesa.categoria}
-                          {spesa.id_vacanza > 0 && (
-                            <span className="ml-2 inline-flex items-center gap-1 text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold uppercase">
-                              <Palmtree size={10} />
-                              {vacanze.find(v => v.id === spesa.id_vacanza)?.nome}
-                            </span>
-                          )}
                         </p>
-                        <p className="text-xs text-zinc-500">{formatDate(spesa.data)} • {spesa.categoria}</p>
+                        <p className="text-[10px] sm:text-xs text-zinc-500 truncate">{formatDate(spesa.data)} • {spesa.categoria}</p>
                       </div>
                     </div>
-                    <p className="font-bold text-indigo-600">{formatCurrency(spesa.importo)}</p>
+                    <p className="font-bold text-indigo-600 flex-shrink-0 ml-2">{formatCurrency(spesa.importo)}</p>
                   </div>
                 );
               })}
@@ -113,7 +107,7 @@ export default async function Dashboard() {
         </div>
 
         <div className="space-y-8">
-          <section className="bg-indigo-600 text-white rounded-3xl p-6 shadow-xl">
+          <section className="bg-indigo-600 text-white rounded-3xl p-4 sm:p-6 shadow-xl">
             <div className="flex items-center gap-3 mb-4">
               <Palmtree className="text-emerald-400" />
               <h2 className="text-xl font-bold font-display">Vacanze Attive</h2>
@@ -131,13 +125,13 @@ export default async function Dashboard() {
             </div>
           </section>
 
-          <section className="bg-zinc-50 rounded-3xl p-6 border border-zinc-100">
+          <section className="bg-zinc-50 rounded-3xl p-4 sm:p-6 border border-zinc-100">
              <h2 className="text-xl font-bold font-display mb-4">Prossimi Lavori</h2>
              <div className="space-y-3">
                {lavori.filter(l => !l.fatto).slice(0, 4).map(l => (
                  <div key={l.id} className="flex items-center gap-3">
-                   <div className="w-2 h-2 rounded-full bg-zinc-300" />
-                   <span className="text-sm text-zinc-700">{l.lavoro}</span>
+                   <div className="w-2 h-2 rounded-full bg-zinc-300 flex-shrink-0" />
+                   <span className="text-sm text-zinc-700 truncate">{l.lavoro}</span>
                  </div>
                ))}
                {lavoriDaFare === 0 && (
@@ -153,7 +147,7 @@ export default async function Dashboard() {
 
 function StatCard({ title, value, description, icon: Icon, trend, trendUp }: any) {
   return (
-    <div className="bg-white p-6 rounded-3xl border border-zinc-100 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white p-4 sm:p-6 rounded-3xl border border-zinc-100 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between mb-4">
         <div className="p-2 bg-zinc-50 rounded-xl">
           <Icon size={20} className="text-zinc-600" />

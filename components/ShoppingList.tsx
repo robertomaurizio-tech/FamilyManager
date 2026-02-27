@@ -107,11 +107,11 @@ export default function ShoppingList({
                 </button>
               </div>
 
-              <div className="flex-1 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+              <div className="flex-1 flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-full bg-emerald-50 flex-shrink-0 flex items-center justify-center text-emerald-600">
                   <CheckCircle2 size={20} />
                 </div>
-                <span className="font-bold text-lg text-indigo-600">{item.articolo}</span>
+                <span className="font-bold text-base sm:text-lg text-indigo-600 truncate">{item.articolo}</span>
               </div>
 
               <button

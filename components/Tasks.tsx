@@ -65,15 +65,15 @@ export default function TasksPage({ lavori }: { lavori: any[] }) {
                   : "bg-white border-zinc-200 shadow-sm hover:border-zinc-400"
               )}
             >
-              <div className="flex items-center gap-4 flex-1 cursor-pointer" onClick={() => toggleLavoro(item.id, !item.fatto)}>
+              <div className="flex items-center gap-4 flex-1 cursor-pointer min-w-0" onClick={() => toggleLavoro(item.id, !item.fatto)}>
                 <div className={cn(
-                  "w-6 h-6 rounded-full flex items-center justify-center transition-colors",
+                  "w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center transition-colors",
                   item.fatto ? "bg-emerald-500 text-white" : "border-2 border-zinc-200 text-transparent"
                 )}>
                   <CheckCircle2 size={16} />
                 </div>
                 <span className={cn(
-                  "font-medium text-lg",
+                  "font-medium text-base sm:text-lg truncate",
                   item.fatto ? "line-through text-zinc-400" : "text-indigo-600"
                 )}>
                   {item.lavoro}

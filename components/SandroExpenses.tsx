@@ -202,10 +202,10 @@ export default function SandroExpenses({
               {pagamenti.map((p, idx) => (
                 <div 
                   key={idx}
-                  className="bg-zinc-50 p-4 rounded-2xl border border-zinc-200 flex items-center justify-between"
+                  className="bg-zinc-50 p-3 sm:p-4 rounded-2xl border border-zinc-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-emerald-100 text-emerald-700">
+                    <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center bg-emerald-100 text-emerald-700">
                       <CheckCircle2 size={20} />
                     </div>
                     <div>
@@ -213,7 +213,7 @@ export default function SandroExpenses({
                       <p className="text-xs text-zinc-500">Data saldo: {formatDate(p.data_pagamento)}</p>
                     </div>
                   </div>
-                  <span className="font-mono font-bold text-emerald-700 text-lg">
+                  <span className="font-mono font-bold text-emerald-700 text-lg sm:text-right">
                     {formatCurrency(p.totale)}
                   </span>
                 </div>

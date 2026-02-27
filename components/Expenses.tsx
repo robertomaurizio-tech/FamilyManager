@@ -296,7 +296,8 @@ export default function ExpensesPage({
       </AnimatePresence>
 
       <div className="bg-white rounded-3xl border border-zinc-100 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full text-left border-collapse">
             <thead>
               <tr className="bg-zinc-50 border-b border-zinc-100">
@@ -352,6 +353,51 @@ export default function ExpensesPage({
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile List */}
+        <div className="md:hidden divide-y divide-zinc-100">
+          {spese.map((spesa) => (
+            <div key={spesa.id} className="p-4 space-y-3">
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <p className="text-xs text-zinc-500">{formatDate(spesa.data)}</p>
+                  <p className="font-bold text-indigo-600">{spesa.note || spesa.categoria}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <span 
+                      className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold text-white shadow-sm"
+                      style={{ backgroundColor: categorie.find(c => c.nome === spesa.categoria)?.colore || '#6b7280' }}
+                    >
+                      {spesa.categoria}
+                    </span>
+                    {spesa.extra === 1 && <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold uppercase">Extra</span>}
+                    {spesa.id_vacanza > 0 && (
+                      <span className="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold uppercase">
+                        {vacanze.find(v => v.id === spesa.id_vacanza)?.nome}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-indigo-600">{formatCurrency(spesa.importo)}</p>
+                  <div className="flex justify-end gap-2 mt-2">
+                    <button 
+                      onClick={() => handleEdit(spesa)}
+                      className="p-2 text-zinc-400 hover:text-indigo-600"
+                    >
+                      <Edit2 size={18} />
+                    </button>
+                    <button 
+                      onClick={() => confirmDelete(spesa.id)}
+                      className="p-2 text-zinc-400 hover:text-rose-600"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
         
         {spese.length === 0 && (
