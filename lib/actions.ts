@@ -200,13 +200,13 @@ export async function addSpesaSandro(data: string, descrizione: string, importo:
 }
 
 export async function paySpesaSandro(id: number) {
-  const now = new Date().toISOString().split('T')[0];
+  const now = new Date().toISOString();
   db.prepare('UPDATE spese_sandro SET pagato = 1, data_pagamento = ? WHERE id = ?').run(now, id);
   revalidatePath('/sandro');
 }
 
 export async function payAllSpeseSandro() {
-  const now = new Date().toISOString().split('T')[0];
+  const now = new Date().toISOString();
   db.prepare('UPDATE spese_sandro SET pagato = 1, data_pagamento = ? WHERE pagato = 0').run(now);
   revalidatePath('/sandro');
 }
@@ -278,7 +278,9 @@ export async function uploadCsvData(vacanzeCsv: string, speseCsv: string) {
       if (existing) {
         db.prepare('UPDATE vacanze SET nome = ?, attiva = ? WHERE id = ?').run(record.nome, parseInt(record.attiva), record.id);
       } else {
-        db.prepare('INSERT INTO vacanze (id, nome, attiva) VALUES (?, ?, ?)').run(record.id, record.nome, parseInt(record.attiva));
+        // Inseriamo una data predefinita temporanea per soddisfare il vincolo NOT NULL
+        // Verrà aggiornata successivamente dal calcolo basato sulle spese
+        db.prepare('INSERT INTO vacanze (id, nome, attiva, data_inizio) VALUES (?, ?, ?, ?)').run(record.id, record.nome, parseInt(record.attiva), '1970-01-01');
       }
     }
 
