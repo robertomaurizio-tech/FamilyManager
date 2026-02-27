@@ -4,6 +4,8 @@ import { appendToLog } from '@/lib/logger';
 
 export async function middleware(request: NextRequest) {
   await appendToLog(`Middleware triggered for path: ${request.nextUrl.pathname}`);
+  const allCookies = request.cookies.getAll().map(c => c.name);
+  await appendToLog(`Cookies received: ${JSON.stringify(allCookies)}`);
   const isAuthenticated = request.cookies.has('auth');
   await appendToLog(`Middleware check: isAuthenticated = ${isAuthenticated}`);
 

@@ -6,11 +6,10 @@ export async function POST() {
   const response = NextResponse.json({ success: true });
   response.cookies.set('auth', 'true', {
     httpOnly: true,
-    secure: true,
-    sameSite: 'none',
     path: '/',
     maxAge: 86400, // 1 day
-    partitioned: true,
+    // Rimuoviamo secure: true e sameSite: 'none' per compatibilità con HTTP locale
+    // In produzione con HTTPS questi andrebbero riattivati o gestiti dinamicamente
   });
   await appendToLog('Authentication cookie set.');
   return response;
