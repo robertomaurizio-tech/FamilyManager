@@ -399,14 +399,21 @@ export async function saveLoginSequence(sequence: string[]) {
 
 export async function getLoginSequence() {
   try {
+    // Check if the table exists first
+    const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='impostazioni'").get();
+    if (!tableCheck) {
+      console.warn('Warning: `impostazioni` table not found. Using default login sequence.');
+      return ['Star', 'Heart', 'Sun', 'Moon']; // Default sequence
+    }
+
     const result = db.prepare('SELECT valore FROM impostazioni WHERE chiave = ?').get('login_sequence') as { valore: string } | undefined;
     if (result) {
       return JSON.parse(result.valore);
     }
-    return ['Star', 'Heart', 'Sun', 'Moon']; // Default sequence
+    return ['Star', 'Heart', 'Sun', 'Moon']; // Default sequence if key not found
   } catch (error) {
     console.error('Failed to get login sequence:', error);
-    return ['Star', 'Heart', 'Sun', 'Moon']; // Default on error
+    return ['Star', 'Heart', 'Sun', 'Moon']; // Default on any other error
   }
 }
 
