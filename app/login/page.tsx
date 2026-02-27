@@ -49,23 +49,10 @@ export default function LoginPage() {
   const checkSequence = async (sequence: string[]) => {
     const isCorrect = JSON.stringify(sequence) === JSON.stringify(correctSequence);
     if (isCorrect) {
-      try {
-        const response = await fetch('/api/login', { method: 'POST' });
-        if (response.ok) {
-          setStatus('success');
-          setTimeout(() => {
-            window.location.href = '/';
-          }, 1000);
-        } else {
-          throw new Error('Login failed');
-        }
-      } catch (error) {
-        setStatus('error');
-        setTimeout(() => {
-          setSelectedSequence([]);
-          setStatus('idle');
-        }, 1000);
-      }
+      setStatus('success');
+      setTimeout(() => {
+        router.push('/');
+      }, 1000);
     } else {
       setStatus('error');
       setTimeout(() => {
