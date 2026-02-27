@@ -7,6 +7,10 @@ import { motion, AnimatePresence } from 'motion/react';
 
 export default function CategoriesManager({ initialCategories }: { initialCategories: any[] }) {
   const [categories, setCategories] = React.useState(initialCategories);
+
+  React.useEffect(() => {
+    setCategories(initialCategories);
+  }, [initialCategories]);
   const [isAdding, setIsAdding] = React.useState(false);
   const [editingId, setEditingId] = React.useState<number | null>(null);
   const [formData, setFormData] = React.useState({ nome: '', colore: '#3b82f6' });

@@ -257,59 +257,43 @@ async function ensureHolidayExists(id: number, nome: string, dataSpesa: string) 
   revalidatePath('/expenses');
 }
 
-export async function uploadCsvExpenses(csvContent: string) {
+export async function uploadCsvData(vacanzeCsv: string, speseCsv: string) {
   try {
-    const records = parse(csvContent, {
+    // Import vacanze
+    const vacanzeRecords = parse(vacanzeCsv, {
+      columns: true,
+      skip_empty_lines: true,
+      delimiter: ',',
+      trim: true,
+    }) as { id: string; nome: string; attiva: string }[];
+
+    for (const record of vacanzeRecords) {
+      const existing = db.prepare('SELECT id FROM vacanze WHERE id = ?').get(record.id);
+      if (existing) {
+        db.prepare('UPDATE vacanze SET nome = ?, attiva = ? WHERE id = ?').run(record.nome, parseInt(record.attiva), record.id);
+      } else {
+        db.prepare('INSERT INTO vacanze (id, nome, attiva) VALUES (?, ?, ?)').run(record.id, record.nome, parseInt(record.attiva));
+      }
+    }
+
+    // Import spese
+    const speseRecords = parse(speseCsv, {
       columns: true,
       skip_empty_lines: true,
       delimiter: ',',
       trim: true,
     }) as CsvRow[];
 
-    // Group expenses by holiday to determine min/max dates for holidays
-    const expensesByHoliday = new Map<string, { dates: string[], expenses: CsvRow[] }>();
-
-    for (const record of records) {
-      const id_vacanza = record.id_vacanza;
-      if (id_vacanza && id_vacanza !== '0') {
-        if (!expensesByHoliday.has(id_vacanza)) {
-          expensesByHoliday.set(id_vacanza, { dates: [], expenses: [] });
-        }
-        expensesByHoliday.get(id_vacanza)?.dates.push(record.data);
-        expensesByHoliday.get(id_vacanza)?.expenses.push(record);
-      }
-    }
-
-    // Process holidays first to establish their date ranges
-    for (const [holidayId, data] of expensesByHoliday.entries()) {
-      const minDate = data.dates.reduce((min, current) => (current < min ? current : min), data.dates[0]);
-      const maxDate = data.dates.reduce((max, current) => (current > max ? current : max), data.dates[0]);
-
-      // Create or update holiday with calculated min/max dates
-      // Use id_vacanza as nome and description as requested
-      const holidayName = `Vacanza ${holidayId}`;
-      const existingHoliday = db.prepare('SELECT id FROM vacanze WHERE id = ?').get(parseInt(holidayId)) as { id: number } | undefined;
-      if (existingHoliday) {
-        db.prepare('UPDATE vacanze SET nome = ?, data_inizio = ?, data_fine = ? WHERE id = ?')
-          .run(holidayName, minDate, maxDate, parseInt(holidayId));
-      } else {
-        db.prepare('INSERT INTO vacanze (id, nome, attiva, data_inizio, data_fine) VALUES (?, ?, 1, ?, ?)')
-          .run(parseInt(holidayId), holidayName, minDate, maxDate);
-      }
-    }
-
-    // Now add expenses, ensuring categories exist
-    for (const record of records) {
+    for (const record of speseRecords) {
       const importoNum = parseFloat(record.importo);
-      if (isNaN(importoNum)) continue; // Skip invalid amounts
+      if (isNaN(importoNum)) continue;
 
       await ensureCategoryExists(record.categoria);
 
       const idVacanza = record.id_vacanza && record.id_vacanza !== '0' ? parseInt(record.id_vacanza) : 0;
       const extra = record.extra === '1' || record.extra.toLowerCase() === 'true';
 
-      // Check if expense with this ID already exists, if so, update, otherwise insert
-      const existingExpense = db.prepare('SELECT id FROM spese WHERE id = ?').get(parseInt(record.id)) as { id: number } | undefined;
+      const existingExpense = db.prepare('SELECT id FROM spese WHERE id = ?').get(parseInt(record.id));
       if (existingExpense) {
         db.prepare('UPDATE spese SET data = ?, categoria = ?, importo = ?, note = ?, id_vacanza = ?, extra = ? WHERE id = ?')
           .run(record.data, record.categoria, importoNum, record.note, idVacanza, extra ? 1 : 0, parseInt(record.id));
@@ -319,11 +303,24 @@ export async function uploadCsvExpenses(csvContent: string) {
       }
     }
 
+    // Update holiday dates based on expenses
+    const holidayDates = db.prepare(`
+      SELECT id_vacanza, MIN(data) as min_data, MAX(data) as max_data
+      FROM spese
+      WHERE id_vacanza > 0
+      GROUP BY id_vacanza
+    `).all() as { id_vacanza: number; min_data: string; max_data: string }[];
+
+    for (const holiday of holidayDates) {
+      db.prepare('UPDATE vacanze SET data_inizio = ?, data_fine = ? WHERE id = ?')
+        .run(holiday.min_data, holiday.max_data, holiday.id_vacanza);
+    }
+
     revalidatePath('/expenses');
     revalidatePath('/holidays');
     revalidatePath('/');
 
-    return { success: true, message: 'Spese importate e vacanze aggiornate con successo!' };
+    return { success: true, message: 'Dati importati con successo!' };
   } catch (error: any) {
     console.error('Errore durante l\'importazione CSV:', error);
     return { success: false, message: `Errore durante l\'importazione: ${error.message}` };
