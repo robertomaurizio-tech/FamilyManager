@@ -332,17 +332,17 @@ export default function ExpensesPage({
                     {formatCurrency(spesa.importo)}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex justify-end gap-2 transition-opacity">
                       <button 
                         onClick={() => handleEdit(spesa)}
-                        className="p-2 text-zinc-300 hover:text-indigo-600 transition-colors"
+                        className="p-2 text-zinc-400 hover:text-indigo-600 transition-colors"
                         title="Modifica"
                       >
                         <Edit2 size={16} />
                       </button>
                       <button 
                         onClick={() => confirmDelete(spesa.id)}
-                        className="p-2 text-zinc-300 hover:text-rose-600 transition-colors"
+                        className="p-2 text-zinc-400 hover:text-rose-600 transition-colors"
                         title="Elimina"
                       >
                         <Trash2 size={16} />

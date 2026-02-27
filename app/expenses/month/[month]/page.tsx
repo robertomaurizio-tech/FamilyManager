@@ -13,16 +13,16 @@ export default async function MonthlyDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="space-y-8">
-      <header className="flex items-center gap-4">
+      <header className="flex items-start sm:items-center gap-3 sm:gap-4">
         <Link 
           href="/"
-          className="p-3 bg-white border border-zinc-200 rounded-2xl hover:bg-zinc-50 transition-colors shadow-sm"
+          className="p-2 sm:p-3 bg-white border border-zinc-200 rounded-2xl hover:bg-zinc-50 transition-colors shadow-sm flex-shrink-0"
         >
-          <ArrowLeft size={24} />
+          <ArrowLeft size={20} className="sm:size-6" />
         </Link>
-        <div>
-          <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight capitalize">{monthName}</h1>
-          <p className="text-zinc-500 mt-1">Dettaglio analitico delle spese mensili.</p>
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-4xl font-display font-bold tracking-tight capitalize truncate">{monthName}</h1>
+          <p className="text-zinc-500 mt-0.5 sm:mt-1 text-xs sm:text-base">Dettaglio analitico delle spese mensili.</p>
         </div>
       </header>
 
@@ -46,7 +46,7 @@ export default async function MonthlyDetailPage({ params }: { params: Promise<{ 
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <section className="bg-white p-8 rounded-[2.5rem] border border-zinc-100 shadow-sm">
+        <section className="bg-white p-4 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-zinc-100 shadow-sm">
           <h2 className="text-xl font-bold font-display mb-6 flex items-center gap-2">
             <Tag size={20} className="text-zinc-400" />
             Per Categoria
@@ -70,7 +70,7 @@ export default async function MonthlyDetailPage({ params }: { params: Promise<{ 
           </div>
         </section>
 
-        <section className="bg-white p-8 rounded-[2.5rem] border border-zinc-100 shadow-sm">
+        <section className="bg-white p-4 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-zinc-100 shadow-sm">
           <h2 className="text-xl font-bold font-display mb-6 flex items-center gap-2">
             <Palmtree size={20} className="text-zinc-400" />
             Per Vacanza
@@ -89,8 +89,8 @@ export default async function MonthlyDetailPage({ params }: { params: Promise<{ 
         </section>
       </div>
 
-      <section className="bg-white rounded-[2.5rem] border border-zinc-100 shadow-sm overflow-hidden">
-        <div className="p-8 border-b border-zinc-100 flex items-center justify-between">
+      <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-zinc-100 shadow-sm overflow-hidden">
+        <div className="p-6 sm:p-8 border-b border-zinc-100 flex items-center justify-between">
           <h2 className="text-xl font-bold font-display flex items-center gap-2">
             <Receipt size={20} className="text-zinc-400" />
             Elenco Spese
@@ -99,7 +99,9 @@ export default async function MonthlyDetailPage({ params }: { params: Promise<{ 
             {detail.expenses.length} Transazioni
           </span>
         </div>
-        <div className="overflow-x-auto lg:overflow-x-hidden">
+        
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full text-left border-collapse">
             <thead>
               <tr className="bg-zinc-50 border-b border-zinc-100">
@@ -148,6 +150,44 @@ export default async function MonthlyDetailPage({ params }: { params: Promise<{ 
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-zinc-100">
+          {detail.expenses.map((spesa) => {
+            const cat = categorie.find(c => c.nome === spesa.categoria);
+            return (
+              <div key={spesa.id} className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-400 font-medium">{formatDate(spesa.data)}</span>
+                  <span className="font-mono font-bold text-indigo-600">{formatCurrency(spesa.importo)}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="font-bold text-indigo-600 truncate">{spesa.note || spesa.categoria}</p>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      <span 
+                        className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold text-white uppercase tracking-wider"
+                        style={{ backgroundColor: cat?.colore || '#6b7280' }}
+                      >
+                        {spesa.categoria}
+                      </span>
+                      {spesa.extra === 1 && (
+                        <span className="inline-flex items-center gap-1 text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold uppercase">
+                          <Star size={8} /> Extra
+                        </span>
+                      )}
+                      {spesa.vacanza_nome && (
+                        <span className="inline-flex items-center gap-1 text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold uppercase">
+                          <Palmtree size={8} /> {spesa.vacanza_nome}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
     </div>

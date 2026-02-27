@@ -70,17 +70,17 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
 
   return (
     <div className="space-y-8">
-      <header className="flex items-center justify-between">
+      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-display font-bold tracking-tight">Categorie Spese</h1>
-          <p className="text-zinc-500 mt-2">Personalizza le categorie per le tue uscite.</p>
+          <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight">Categorie Spese</h1>
+          <p className="text-zinc-500 mt-1 sm:mt-2 text-sm sm:text-base">Personalizza le categorie per le tue uscite.</p>
         </div>
         <button 
           onClick={() => setIsAdding(!isAdding)}
-          className="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg hover:bg-indigo-700 transition-all flex items-center gap-2"
+          className="w-full sm:w-auto p-3 sm:p-4 bg-indigo-600 text-white rounded-2xl shadow-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
         >
           <Plus size={24} />
-          <span className="font-bold hidden sm:inline">{editingId ? 'Modifica Categoria' : 'Nuova Categoria'}</span>
+          <span className="font-bold">{editingId ? 'Modifica Categoria' : 'Nuova Categoria'}</span>
         </button>
       </header>
 
@@ -92,8 +92,8 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <form onSubmit={handleSubmit} className="bg-zinc-50 p-8 rounded-3xl border border-zinc-200 space-y-6">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <form onSubmit={handleSubmit} className="bg-zinc-50 p-4 sm:p-8 rounded-3xl border border-zinc-200 space-y-6">
+              <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Nome Categoria</label>
                   <input
@@ -101,37 +101,37 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
                     required
                     value={formData.nome}
                     onChange={e => setFormData({...formData, nome: e.target.value})}
-                    className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none"
+                    className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none text-sm sm:text-base"
                     placeholder="Esempio: Ristorante, Auto, Regali..."
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Colore Identificativo</label>
-                  <div className="flex gap-4 items-center">
+                  <div className="flex gap-3 sm:gap-4 items-center">
                     <input
                       type="color"
                       value={formData.colore}
                       onChange={e => setFormData({...formData, colore: e.target.value})}
-                      className="w-16 h-12 p-1 bg-white border border-zinc-200 rounded-xl cursor-pointer"
+                      className="w-14 sm:w-16 h-10 sm:h-12 p-1 bg-white border border-zinc-200 rounded-xl cursor-pointer"
                     />
-                    <div className="flex-1 px-4 py-3 bg-white border border-zinc-200 rounded-xl font-mono text-sm">
+                    <div className="flex-1 px-4 py-2.5 sm:py-3 bg-white border border-zinc-200 rounded-xl font-mono text-xs sm:text-sm">
                       {formData.colore.toUpperCase()}
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4">
+              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
                 <button 
                   type="button"
                   onClick={cancel}
-                  className="px-6 py-3 text-zinc-500 font-bold hover:text-indigo-600 transition-colors"
+                  className="w-full sm:w-auto px-6 py-3 text-zinc-500 font-bold hover:text-indigo-600 transition-colors order-2 sm:order-1"
                 >
                   Annulla
                 </button>
                 <button 
                   type="submit"
-                  className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all"
+                  className="w-full sm:w-auto px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all order-1 sm:order-2"
                 >
                   {editingId ? 'Aggiorna' : 'Salva'}
                 </button>

@@ -21,28 +21,28 @@ export default function TasksPage({ lavori }: { lavori: any[] }) {
 
   return (
     <div className="space-y-8">
-      <header className="flex items-center justify-between">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-display font-bold tracking-tight">Lavori</h1>
-          <p className="text-zinc-500 mt-2">Cose da fare in casa e manutenzione.</p>
+          <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight">Lavori</h1>
+          <p className="text-zinc-500 mt-1 sm:mt-2 text-sm sm:text-base">Cose da fare in casa e manutenzione.</p>
         </div>
-        <div className="p-4 bg-zinc-100 rounded-2xl">
-          <CheckSquare className="text-zinc-600" size={32} />
+        <div className="p-3 sm:p-4 bg-zinc-100 rounded-2xl w-fit">
+          <CheckSquare className="text-zinc-600" size={24} />
         </div>
       </header>
 
-      <form onSubmit={handleAdd} className="flex gap-2">
+      <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-2">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Nuovo lavoro da fare..."
-          className="flex-1 px-6 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+          className="flex-1 px-4 sm:px-6 py-3 sm:py-4 bg-zinc-50 border border-zinc-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all text-sm sm:text-base"
         />
         <button
           type="submit"
           disabled={isPending}
-          className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+          className="px-6 sm:px-8 py-3 sm:py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 text-sm sm:text-base"
         >
           <Plus size={20} />
           <span>Aggiungi</span>
@@ -59,7 +59,7 @@ export default function TasksPage({ lavori }: { lavori: any[] }) {
               exit={{ opacity: 0, scale: 0.95 }}
               key={item.id}
               className={cn(
-                "group p-5 rounded-3xl border transition-all flex items-center justify-between",
+                "group p-4 sm:p-5 rounded-3xl border transition-all flex items-center justify-between gap-3",
                 item.fatto 
                   ? "bg-zinc-50 border-zinc-100 opacity-60" 
                   : "bg-white border-zinc-200 shadow-sm hover:border-zinc-400"
@@ -81,7 +81,7 @@ export default function TasksPage({ lavori }: { lavori: any[] }) {
               </div>
               <button
                 onClick={() => deleteLavoro(item.id)}
-                className="p-2 text-zinc-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                className="p-2 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
               >
                 <Trash2 size={18} />
               </button>

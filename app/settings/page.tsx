@@ -196,15 +196,15 @@ export default function SettingsPage() {
         <p className="text-zinc-500 mt-2">Gestisci le impostazioni dell&apos;applicazione.</p>
       </header>
 
-      <section className="bg-white p-8 rounded-3xl border border-zinc-100 shadow-sm space-y-6">
+      <section className="bg-white p-4 sm:p-8 rounded-3xl border border-zinc-100 shadow-sm space-y-6">
         <h2 className="text-2xl font-display font-bold">Importa Dati da CSV</h2>
         <p className="text-zinc-600">Importa le tue vacanze e le spese da file CSV separati.</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <pre className="bg-zinc-50 p-4 rounded-xl text-sm font-mono overflow-x-auto border border-zinc-200">
+          <pre className="bg-zinc-50 p-4 rounded-xl text-xs font-mono overflow-x-auto border border-zinc-200">
             <strong>Vacanze:</strong>
             id,nome,attiva
           </pre>
-          <pre className="bg-zinc-50 p-4 rounded-xl text-sm font-mono overflow-x-auto border border-zinc-200">
+          <pre className="bg-zinc-50 p-4 rounded-xl text-xs font-mono overflow-x-auto border border-zinc-200">
             <strong>Spese:</strong>
             id,data,categoria,importo,note,id_vacanza,extra
           </pre>
@@ -217,21 +217,21 @@ export default function SettingsPage() {
           }}
           onDragLeave={() => setIsDragOver(false)}
           onDrop={(e) => handleDrop(e, 'vacanze')}
-          className={`flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-2xl transition-colors ${isDragOver ? 'border-indigo-600 bg-indigo-50' : 'border-zinc-200 bg-white'}`}
+          className={`flex flex-col items-center justify-center p-6 sm:p-10 border-2 border-dashed rounded-2xl transition-colors ${isDragOver ? 'border-indigo-600 bg-indigo-50' : 'border-zinc-200 bg-white'}`}
         >
           <UploadCloud size={48} className="text-zinc-400 mb-4" />
-          <p className="text-zinc-600 mb-2">Trascina qui il tuo file CSV o</p>
-          <div className="flex gap-4">
-            <label className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all cursor-pointer">
+          <p className="text-zinc-600 mb-4 text-center">Trascina qui il tuo file CSV o</p>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <label className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all cursor-pointer text-center text-sm">
               Carica Vacanze.csv
               <input type="file" accept=".csv" onChange={(e) => handleFileChange(e, 'vacanze')} className="hidden" />
             </label>
-            <label className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all cursor-pointer">
+            <label className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all cursor-pointer text-center text-sm">
               Carica Spese.csv
               <input type="file" accept=".csv" onChange={(e) => handleFileChange(e, 'spese')} className="hidden" />
             </label>
           </div>
-          <div className="flex gap-8 mt-4">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 mt-6">
             {vacanzeFile && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -287,12 +287,12 @@ export default function SettingsPage() {
         </AnimatePresence>
       </section>
 
-      <section className="bg-white p-8 rounded-3xl border border-zinc-100 shadow-sm space-y-6">
+      <section className="bg-white p-4 sm:p-8 rounded-3xl border border-zinc-100 shadow-sm space-y-6">
         <h2 className="text-2xl font-display font-bold">Gestione Categorie</h2>
         <CategoriesManager initialCategories={categories} />
       </section>
 
-      <section className="bg-white p-8 rounded-3xl border border-zinc-100 shadow-sm space-y-6">
+      <section className="bg-white p-4 sm:p-8 rounded-3xl border border-zinc-100 shadow-sm space-y-6">
         <h2 className="text-2xl font-display font-bold">Configura Accesso con Icone</h2>
         <p className="text-zinc-600">Seleziona una sequenza di 4 icone per il tuo accesso sicuro. Ricorda l&apos;ordine!</p>
         <div className="space-y-4">
@@ -323,14 +323,14 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4">
-            <button onClick={handleSequenceReset} className="px-6 py-3 text-zinc-500 font-bold hover:text-indigo-600 transition-colors">Resetta</button>
-            <button onClick={handleSequenceSave} disabled={loginSequence.length !== 4} className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all disabled:opacity-50">Salva Sequenza</button>
+          <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4">
+            <button onClick={handleSequenceReset} className="w-full sm:w-auto px-6 py-3 text-zinc-500 font-bold hover:text-indigo-600 transition-colors">Resetta</button>
+            <button onClick={handleSequenceSave} disabled={loginSequence.length !== 4} className="w-full sm:w-auto px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all disabled:opacity-50">Salva Sequenza</button>
           </div>
         </div>
       </section>
 
-      <section className="bg-white p-8 rounded-3xl border border-rose-100 shadow-sm space-y-6">
+      <section className="bg-white p-4 sm:p-8 rounded-3xl border border-rose-100 shadow-sm space-y-6">
         <h2 className="text-2xl font-display font-bold text-rose-700">Zona Pericolosa</h2>
         <p className="text-rose-600">Questa azione cancellerà in modo permanente TUTTI i dati dal database. Procedi con cautela.</p>
         <button

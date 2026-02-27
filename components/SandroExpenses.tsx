@@ -180,7 +180,7 @@ export default function SandroExpenses({
                       </button>
                       <button
                         onClick={() => handleDelete(item.id)}
-                        className="p-2 text-zinc-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                        className="p-2 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                       >
                         <Trash2 size={18} />
                       </button>
