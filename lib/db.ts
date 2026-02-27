@@ -44,7 +44,7 @@ if (catCount.count === 0) {
     ['Svago', '#8b5cf6'],
     ['Altro', '#6b7280']
   ];
-  const stmt = db.prepare("INSERT INTO categorie (nome, colore) VALUES (?, ?)");
+  const stmt = db.prepare("INSERT OR IGNORE INTO categorie (nome, colore) VALUES (?, ?)");
   defaults.forEach(d => stmt.run(d[0], d[1]));
 }
 
