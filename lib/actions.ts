@@ -412,17 +412,7 @@ export async function getLoginSequence() {
 
 
 
-export async function authenticateUser() {
-  cookies().set('auth', 'true', {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    path: '/',
-    maxAge: 86400, // 1 day
-    partitioned: true,
-  });
-  redirect('/');
-}
+
 
 // --- DASHBOARD & ANALYTICS ---
 export async function getDashboardChartData() {
