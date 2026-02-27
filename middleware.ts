@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // The authentication logic is temporarily disabled for diagnostic purposes.
-  // const isAuthenticated = request.cookies.has('auth');
+  const isAuthenticated = request.cookies.has('auth');
 
-  // if (!isAuthenticated && request.nextUrl.pathname !== '/login') {
-  //   return NextResponse.redirect(new URL('/login', request.url));
-  // }
+  if (!isAuthenticated && request.nextUrl.pathname !== '/login') {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
 
+  // The following block is removed to prevent the redirect loop.
   // if (isAuthenticated && request.nextUrl.pathname === '/login') {
   //   return NextResponse.redirect(new URL('/', request.url));
   // }

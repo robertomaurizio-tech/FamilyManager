@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Home, Heart, Star, Sun, Moon, Cloud, Lock, Key, Smile } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
-import { getLoginSequence, authenticateUser } from '@/lib/actions';
+import { getLoginSequence } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
 
 const icons = [
@@ -49,8 +49,23 @@ export default function LoginPage() {
   const checkSequence = async (sequence: string[]) => {
     const isCorrect = JSON.stringify(sequence) === JSON.stringify(correctSequence);
     if (isCorrect) {
-      setStatus('success');
-      await authenticateUser();
+      try {
+        const response = await fetch('/api/login', { method: 'POST', credentials: 'include' });
+        if (response.ok) {
+          setStatus('success');
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1000);
+        } else {
+          throw new Error('Login failed');
+        }
+      } catch (error) {
+        setStatus('error');
+        setTimeout(() => {
+          setSelectedSequence([]);
+          setStatus('idle');
+        }, 1000);
+      }
     } else {
       setStatus('error');
       setTimeout(() => {
