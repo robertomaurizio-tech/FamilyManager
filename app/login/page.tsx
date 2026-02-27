@@ -50,7 +50,6 @@ export default function LoginPage() {
     const isCorrect = JSON.stringify(sequence) === JSON.stringify(correctSequence);
     if (isCorrect) {
       setStatus('success');
-      // Server action will handle the redirect
       await authenticateUser();
     } else {
       setStatus('error');

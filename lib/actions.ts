@@ -1,5 +1,8 @@
 'use server';
 
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+
 import db from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { parse } from 'csv-parse/sync';
@@ -404,25 +407,23 @@ export async function getLoginSequence() {
   }
 }
 
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+
+
+
+
+
+
+
 
 export async function authenticateUser() {
-  try {
-    cookies().set('auth', 'true', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      path: '/',
-      maxAge: 86400, // 1 day
-      partitioned: true,
-    });
-  } catch (error) {
-    console.error('Failed to set auth cookie:', error);
-    // Handle error appropriately
-    return { success: false, message: 'Authentication failed.' };
-  }
-
+  cookies().set('auth', 'true', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    path: '/',
+    maxAge: 86400, // 1 day
+    partitioned: true,
+  });
   redirect('/');
 }
 
