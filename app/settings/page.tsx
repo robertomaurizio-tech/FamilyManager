@@ -13,6 +13,8 @@ interface Category {
   colore: string;
 }
 
+import Modal from '@/components/Modal';
+
 export default function SettingsPage() {
   const [vacanzeFile, setVacanzeFile] = useState<File | null>(null);
   const [speseFile, setSpeseFile] = useState<File | null>(null);
@@ -22,6 +24,19 @@ export default function SettingsPage() {
   const [deleteStatus, setDeleteStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
   const [deleteMessage, setDeleteMessage] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
+  
+  const [modalConfig, setModalConfig] = React.useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm?: () => void;
+    type: 'info' | 'success' | 'warning' | 'danger';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info'
+  });
 
   React.useEffect(() => {
     const fetchCategories = async () => {
@@ -64,9 +79,19 @@ export default function SettingsPage() {
   const handleSequenceSave = async () => {
     const result = await saveLoginSequence(loginSequence);
     if (result.success) {
-      alert('Sequenza salvata!');
+      setModalConfig({
+        isOpen: true,
+        title: 'Successo',
+        message: 'Sequenza salvata!',
+        type: 'success'
+      });
     } else {
-      alert('Errore durante il salvataggio della sequenza.');
+      setModalConfig({
+        isOpen: true,
+        title: 'Errore',
+        message: 'Errore durante il salvataggio della sequenza.',
+        type: 'danger'
+      });
     }
   };
 
@@ -83,23 +108,29 @@ export default function SettingsPage() {
   };
 
   const handleDeleteAllData = async () => {
-    if (window.confirm('Sei sicuro di voler cancellare TUTTI i dati? Questa operazione è irreversibile!')) {
-      setDeleteStatus('pending');
-      setDeleteMessage('Cancellazione in corso...');
-      try {
-        const result = await deleteAllData();
-        if (result.success) {
-          setDeleteStatus('success');
-          setDeleteMessage(result.message || 'Tutti i dati sono stati cancellati con successo!');
-        } else {
+    setModalConfig({
+      isOpen: true,
+      title: 'Attenzione!',
+      message: 'Sei sicuro di voler cancellare TUTTI i dati? Questa operazione è irreversibile!',
+      type: 'danger',
+      onConfirm: async () => {
+        setDeleteStatus('pending');
+        setDeleteMessage('Cancellazione in corso...');
+        try {
+          const result = await deleteAllData();
+          if (result.success) {
+            setDeleteStatus('success');
+            setDeleteMessage(result.message || 'Tutti i dati sono stati cancellati con successo!');
+          } else {
+            setDeleteStatus('error');
+            setDeleteMessage(result.message || 'Errore durante la cancellazione dei dati.');
+          }
+        } catch (error: any) {
           setDeleteStatus('error');
-          setDeleteMessage(result.message || 'Errore durante la cancellazione dei dati.');
+          setDeleteMessage(`Errore: ${error.message || 'Qualcosa è andato storto.'}`);
         }
-      } catch (error: any) {
-        setDeleteStatus('error');
-        setDeleteMessage(`Errore: ${error.message || 'Qualcosa è andato storto.'}`);
       }
-    }
+    });
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>, fileType: 'vacanze' | 'spese') => {
@@ -162,7 +193,7 @@ export default function SettingsPage() {
     <div className="space-y-8">
       <header>
         <h1 className="text-4xl font-display font-bold tracking-tight">Impostazioni</h1>
-        <p className="text-zinc-500 mt-2">Gestisci le impostazioni dell'applicazione.</p>
+        <p className="text-zinc-500 mt-2">Gestisci le impostazioni dell&apos;applicazione.</p>
       </header>
 
       <section className="bg-white p-8 rounded-3xl border border-zinc-100 shadow-sm space-y-6">
@@ -263,7 +294,7 @@ export default function SettingsPage() {
 
       <section className="bg-white p-8 rounded-3xl border border-zinc-100 shadow-sm space-y-6">
         <h2 className="text-2xl font-display font-bold">Configura Accesso con Icone</h2>
-        <p className="text-zinc-600">Seleziona una sequenza di 4 icone per il tuo accesso sicuro. Ricorda l'ordine!</p>
+        <p className="text-zinc-600">Seleziona una sequenza di 4 icone per il tuo accesso sicuro. Ricorda l&apos;ordine!</p>
         <div className="space-y-4">
           <div>
             <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider">Sequenza Attuale</h3>
@@ -332,6 +363,15 @@ export default function SettingsPage() {
           )}
         </AnimatePresence>
       </section>
+
+      <Modal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        type={modalConfig.type}
+      />
     </div>
   );
 }

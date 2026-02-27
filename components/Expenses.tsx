@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
+import Modal from '@/components/Modal';
+
 export default function ExpensesPage({ 
   spese, 
   total, 
@@ -19,7 +21,7 @@ export default function ExpensesPage({
   currentSearch
 }: { 
   spese: any[], 
-  total: number,
+  total: number, 
   vacanze: any[],
   activeVacanza: any,
   activeVacanzeList: any[],
@@ -33,6 +35,19 @@ export default function ExpensesPage({
   const [editingId, setEditingId] = React.useState<number | null>(null);
   const [search, setSearch] = React.useState(currentSearch);
   
+  const [modalConfig, setModalConfig] = React.useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm?: () => void;
+    type: 'info' | 'success' | 'warning' | 'danger';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info'
+  });
+
   const [formData, setFormData] = React.useState({
     importo: '',
     categoria: categorie[0]?.nome || 'Alimentari',
@@ -83,17 +98,30 @@ export default function ExpensesPage({
   };
 
   const handleEdit = (spesa: any) => {
+    // Extract yyyy-MM-dd from date string (which might be yyyy-MM-dd HH:mm:ss)
+    const formattedDate = spesa.data.split(' ')[0];
+    
     setFormData({
       importo: spesa.importo.toString(),
       categoria: spesa.categoria,
       note: spesa.note,
-      data: spesa.data,
+      data: formattedDate,
       id_vacanza: spesa.id_vacanza.toString(),
       extra: spesa.extra === 1
     });
     setEditingId(spesa.id);
     setIsAdding(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const confirmDelete = (id: number) => {
+    setModalConfig({
+      isOpen: true,
+      title: 'Elimina Spesa',
+      message: 'Sei sicuro di voler eliminare questa spesa?',
+      type: 'danger',
+      onConfirm: () => deleteSpesa(id)
+    });
   };
 
   const handlePageChange = (page: number) => {
@@ -138,7 +166,7 @@ export default function ExpensesPage({
             className="flex-1 min-w-[120px] bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
           >
             <option value="0">Tutte le spese</option>
-            {activeVacanzeList.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
+            {vacanze.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
           </select>
         </div>
 
@@ -227,7 +255,7 @@ export default function ExpensesPage({
                     className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none appearance-none"
                   >
                     <option value="0">Nessuna</option>
-                    {activeVacanzeList.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
+                    {vacanze.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
                   </select>
                 </div>
               </div>
@@ -312,7 +340,7 @@ export default function ExpensesPage({
                         <Edit2 size={16} />
                       </button>
                       <button 
-                        onClick={() => deleteSpesa(spesa.id)}
+                        onClick={() => confirmDelete(spesa.id)}
                         className="p-2 text-zinc-300 hover:text-rose-600 transition-colors"
                         title="Elimina"
                       >
@@ -356,6 +384,15 @@ export default function ExpensesPage({
           </div>
         )}
       </div>
+
+      <Modal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        type={modalConfig.type}
+      />
     </div>
   );
 }

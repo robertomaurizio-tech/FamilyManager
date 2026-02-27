@@ -5,6 +5,8 @@ import { addCategoria, updateCategoria, deleteCategoria } from '@/lib/actions';
 import { Plus, Trash2, Edit2, Check, X, Palette } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+import Modal from '@/components/Modal';
+
 export default function CategoriesManager({ initialCategories }: { initialCategories: any[] }) {
   const [categories, setCategories] = React.useState(initialCategories);
 
@@ -14,6 +16,19 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
   const [isAdding, setIsAdding] = React.useState(false);
   const [editingId, setEditingId] = React.useState<number | null>(null);
   const [formData, setFormData] = React.useState({ nome: '', colore: '#3b82f6' });
+  
+  const [modalConfig, setModalConfig] = React.useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm?: () => void;
+    type: 'info' | 'success' | 'warning' | 'danger';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info'
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +47,19 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
     setFormData({ nome: cat.nome, colore: cat.colore });
     setEditingId(cat.id);
     setIsAdding(true);
+  };
+
+  const confirmDelete = (id: number) => {
+    setModalConfig({
+      isOpen: true,
+      title: 'Elimina Categoria',
+      message: 'Sei sicuro di voler eliminare questa categoria?',
+      type: 'danger',
+      onConfirm: async () => {
+        await deleteCategoria(id);
+        window.location.reload();
+      }
+    });
   };
 
   const cancel = () => {
@@ -134,12 +162,7 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
                 <Edit2 size={18} />
               </button>
               <button 
-                onClick={async () => {
-                  if (confirm('Eliminare questa categoria?')) {
-                    await deleteCategoria(cat.id);
-                    window.location.reload();
-                  }
-                }}
+                onClick={() => confirmDelete(cat.id)}
                 className="p-2 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
               >
                 <Trash2 size={18} />
@@ -148,6 +171,15 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
           </div>
         ))}
       </div>
+
+      <Modal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        type={modalConfig.type}
+      />
     </div>
   );
 }

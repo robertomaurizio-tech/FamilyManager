@@ -30,16 +30,19 @@ export async function getLavori() {
 export async function addLavoro(lavoro: string) {
   db.prepare('INSERT INTO lavori (lavoro, fatto) VALUES (?, 0)').run(lavoro);
   revalidatePath('/tasks');
+  revalidatePath('/');
 }
 
 export async function toggleLavoro(id: number, fatto: boolean) {
   db.prepare('UPDATE lavori SET fatto = ? WHERE id = ?').run(fatto ? 1 : 0, id);
   revalidatePath('/tasks');
+  revalidatePath('/');
 }
 
 export async function deleteLavoro(id: number) {
   db.prepare('DELETE FROM lavori WHERE id = ?').run(id);
   revalidatePath('/tasks');
+  revalidatePath('/');
 }
 
 // --- LISTA SPESA ---
@@ -430,8 +433,11 @@ export async function getLoginSequence() {
 
 
 // --- DASHBOARD & ANALYTICS ---
-export async function getDashboardChartData() {
+export async function getDashboardChartData(monthOffset: number = 0) {
   const today = new Date();
+  // Apply offset to the "today" reference
+  today.setMonth(today.getMonth() - monthOffset);
+  
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth() + 1; // Mesi da 1 a 12
 
@@ -465,6 +471,16 @@ export async function getDashboardChartData() {
   });
   
   return fullData;
+}
+
+export async function getHolidayStats(idVacanza: number) {
+  return db.prepare(`
+    SELECT categoria, SUM(importo) as totale
+    FROM spese
+    WHERE id_vacanza = ?
+    GROUP BY categoria
+    ORDER BY totale DESC
+  `).all(idVacanza) as { categoria: string, totale: number }[];
 }
 
 export async function getCurrentMonthExpensesTotal() {

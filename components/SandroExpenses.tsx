@@ -6,6 +6,8 @@ import { formatCurrency, formatDate } from '@/lib/utils';
 import { User, Plus, Trash2, CheckCircle2, Clock, Wallet, CreditCard } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+import Modal from '@/components/Modal';
+
 export default function SandroExpenses({ 
   initialItems, 
   initialTotal,
@@ -19,6 +21,19 @@ export default function SandroExpenses({
   const [total, setTotal] = React.useState(initialTotal);
   const [isPending, setIsPending] = React.useState(false);
   
+  const [modalConfig, setModalConfig] = React.useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm?: () => void;
+    type: 'info' | 'success' | 'warning' | 'danger';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info'
+  });
+
   const [formData, setFormData] = React.useState({
     data: new Date().toISOString().split('T')[0],
     descrizione: '',
@@ -39,17 +54,29 @@ export default function SandroExpenses({
   };
 
   const handlePayAll = async () => {
-    if (confirm('Sei sicuro di voler segnare tutte le spese come pagate in data odierna?')) {
-      await payAllSpeseSandro();
-      window.location.reload();
-    }
+    setModalConfig({
+      isOpen: true,
+      title: 'Salda Tutto',
+      message: 'Sei sicuro di voler segnare tutte le spese come pagate in data odierna?',
+      type: 'warning',
+      onConfirm: async () => {
+        await payAllSpeseSandro();
+        window.location.reload();
+      }
+    });
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Sei sicuro di voler eliminare questa spesa?')) {
-      await deleteSpesaSandro(id);
-      window.location.reload();
-    }
+    setModalConfig({
+      isOpen: true,
+      title: 'Elimina Spesa',
+      message: 'Sei sicuro di voler eliminare questa spesa?',
+      type: 'danger',
+      onConfirm: async () => {
+        await deleteSpesaSandro(id);
+        window.location.reload();
+      }
+    });
   };
 
   const pendingItems = items.filter(i => !i.pagato);
@@ -218,6 +245,15 @@ export default function SandroExpenses({
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        type={modalConfig.type}
+      />
     </div>
   );
 }
