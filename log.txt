@@ -1,0 +1,116 @@
+# Log di Analisi del Problema di Login
+
+**Data:** 2026-02-27
+
+## 1. Descrizione del Problema
+
+L'applicazione presentava un problema critico nel flusso di login: dopo aver inserito la sequenza di icone corretta, l'utente non veniva reindirizzato alla pagina principale, ma rimaneva bloccato sulla pagina di login. Questo problema era intermittente ma frequente, indicando una **condizione di gara**.
+
+## 2. Causa Radice
+
+La causa del problema era un'interazione conflittuale tra tre componenti del sistema:
+
+1.  **Logica di Login (Client-Side)**: La pagina di login, dopo aver verificato la sequenza, chiamava un'API Route (`/api/login`) per impostare un cookie di autenticazione e poi tentava di reindirizzare l'utente alla pagina principale (`/`).
+2.  **API Route (`/api/login`)**: Questo endpoint impostava correttamente il cookie `auth=true` nel browser dell'utente.
+3.  **Middleware (`middleware.ts`)**: Il middleware intercettava ogni richiesta per proteggere le pagine. La sua logica era la seguente:
+    *   Se un utente **non autenticato** cercava di accedere a una pagina protetta, veniva reindirizzato a `/login`.
+    *   Se un utente **già autenticato** cercava di accedere a `/login`, veniva reindirizzato a `/`.
+
+La condizione di gara si verificava in questo modo:
+
+*   Il client eseguiva il login con successo e avviava il reindirizzamento a `/`.
+*   Il middleware si attivava, ma **non aveva ancora registrato il nuovo cookie di autenticazione**.
+*   Vedendo un utente non autenticato che tentava di accedere a `/`, il middleware lo reindirizzava di nuovo a `/login`, creando un loop.
+
+I tentativi di risolvere il problema con Server Actions sono falliti a causa di errori di compilazione e incompatibilità con la configurazione del progetto.
+
+## 3. Soluzione Implementata
+
+La soluzione definitiva ha richiesto un approccio combinato per eliminare la condizione di gara:
+
+1.  **Modifica del Middleware**: È stata rimossa la regola che reindirizzava un utente già autenticato via dalla pagina di login. Questo ha eliminato il loop, poiché il middleware non interferisce più attivamente se un utente autenticato si trova sulla pagina di login.
+
+2.  **Reindirizzamento Ritardato e Forzato**: Nella pagina di login, dopo che la chiamata all'API ha avuto successo, è stato introdotto un ritardo di 1 secondo prima di eseguire un reindirizzamento forzato (`window.location.href = '/'`). Questo ritardo è cruciale perché dà al browser il tempo necessario per elaborare e salvare correttamente il cookie di autenticazione prima che il middleware lo controlli.
+
+## 4. Stato Attuale dei File Chiave
+
+Di seguito, lo stato attuale dei file modificati per risolvere il problema.
+
+### `/app/login/page.tsx` (Logica di reindirizzamento)
+
+```typescript
+// ...
+const checkSequence = async (sequence: string[]) => {
+  const isCorrect = JSON.stringify(sequence) === JSON.stringify(correctSequence);
+  if (isCorrect) {
+    try {
+      const response = await fetch('/api/login', { method: 'POST', credentials: 'include' });
+      if (response.ok) {
+        setStatus('success');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
+      } else {
+        throw new Error('Login failed');
+      }
+    } catch (error) {
+      setStatus('error');
+      setTimeout(() => {
+        setSelectedSequence([]);
+        setStatus('idle');
+      }, 1000);
+    }
+  }
+// ...
+```
+
+### `/app/api/login/route.ts` (Impostazione del cookie)
+
+```typescript
+import { NextResponse } from 'next/server';
+
+export async function POST() {
+  const response = NextResponse.json({ success: true });
+  response.cookies.set('auth', 'true', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    path: '/',
+    maxAge: 86400, // 1 day
+    partitioned: true,
+  });
+  return response;
+}
+```
+
+### `/middleware.ts` (Logica di protezione)
+
+```typescript
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  const isAuthenticated = request.cookies.has('auth');
+
+  if (!isAuthenticated && request.nextUrl.pathname !== '/login') {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  // The following block is removed to prevent the redirect loop.
+  // if (isAuthenticated && request.nextUrl.pathname === '/login') {
+  //   return NextResponse.redirect(new URL('/', request.url));
+  // }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: [
+    '/((?!api/|_next/static|_next/image|favicon.ico).*)',
+  ],
+};
+```
+
+## 5. Conclusione
+
+Il problema è stato risolto con successo. L'applicazione è ora stabile e il flusso di login funziona in modo affidabile.

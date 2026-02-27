@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Home, Heart, Star, Sun, Moon, Cloud, Lock, Key, Smile } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
-import { getLoginSequence } from '@/lib/actions';
+import { getLoginSequence, logDebugMessage } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
 
 const icons = [
@@ -28,6 +28,7 @@ export default function LoginPage() {
   const [correctSequence, setCorrectSequence] = React.useState<string[]>([]);
 
   React.useEffect(() => {
+    logDebugMessage('Login page loaded.');
     const fetchSequence = async () => {
       const sequence = await getLoginSequence();
       setCorrectSequence(sequence);
@@ -38,6 +39,7 @@ export default function LoginPage() {
   const handleIconClick = (iconName: string) => {
     if (status === 'success' || selectedSequence.length >= 4) return;
 
+    logDebugMessage(`Icon clicked: ${iconName}`);
     const newSequence = [...selectedSequence, iconName];
     setSelectedSequence(newSequence);
 
@@ -47,11 +49,15 @@ export default function LoginPage() {
   };
 
   const checkSequence = async (sequence: string[]) => {
+    logDebugMessage(`Checking sequence: ${JSON.stringify(sequence)}`);
     const isCorrect = JSON.stringify(sequence) === JSON.stringify(correctSequence);
     if (isCorrect) {
+      logDebugMessage('Sequence correct.');
       try {
+        logDebugMessage('Attempting to log in via API.');
         const response = await fetch('/api/login', { method: 'POST', credentials: 'include' });
         if (response.ok) {
+          logDebugMessage('API login successful. Preparing to redirect.');
           setStatus('success');
           setTimeout(() => {
             window.location.href = '/';
@@ -67,6 +73,7 @@ export default function LoginPage() {
         }, 1000);
       }
     } else {
+      logDebugMessage('Sequence incorrect.');
       setStatus('error');
       setTimeout(() => {
         setSelectedSequence([]);

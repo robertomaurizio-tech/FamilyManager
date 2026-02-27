@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { appendToLog } from '@/lib/logger';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  await appendToLog(`Middleware triggered for path: ${request.nextUrl.pathname}`);
   const isAuthenticated = request.cookies.has('auth');
+  await appendToLog(`Middleware check: isAuthenticated = ${isAuthenticated}`);
 
   if (!isAuthenticated && request.nextUrl.pathname !== '/login') {
+    await appendToLog('User not authenticated, redirecting to /login.');
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
@@ -13,6 +17,7 @@ export function middleware(request: NextRequest) {
   //   return NextResponse.redirect(new URL('/', request.url));
   // }
 
+  await appendToLog('Middleware check passed.');
   return NextResponse.next();
 }
 

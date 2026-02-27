@@ -1,5 +1,11 @@
 'use server';
 
+import { appendToLog } from '@/lib/logger';
+
+export async function logDebugMessage(message: string) {
+  await appendToLog(message);
+}
+
 import db from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { parse } from 'csv-parse/sync';
