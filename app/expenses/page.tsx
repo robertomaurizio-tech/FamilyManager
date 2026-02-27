@@ -1,6 +1,8 @@
 import { getSpese, getVacanze, getActiveVacanza, getCategorie, getActiveVacanze } from '@/lib/actions';
 import Expenses from '@/components/Expenses';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page({
   searchParams,
 }: {

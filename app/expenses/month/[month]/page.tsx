@@ -1,4 +1,7 @@
 import { getMonthlyExpensesDetail, getCategorie } from '@/lib/actions';
+
+export const dynamic = 'force-dynamic';
+
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { Calendar, Tag, Palmtree, ArrowLeft, Receipt, Star } from 'lucide-react';
 import Link from 'next/link';

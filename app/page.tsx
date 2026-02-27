@@ -1,4 +1,7 @@
 import { getSpese, getLavori, getListaSpesa, getVacanze, getCategorie, getMonthlyAverage, getDashboardChartData, getCurrentMonthExpensesTotal } from '@/lib/actions';
+
+export const dynamic = 'force-dynamic';
+
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import DashboardChart from '@/components/DashboardChart';
 import { 
