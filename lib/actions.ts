@@ -404,6 +404,28 @@ export async function getLoginSequence() {
   }
 }
 
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+
+export async function authenticateUser() {
+  try {
+    cookies().set('auth', 'true', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      path: '/',
+      maxAge: 86400, // 1 day
+      partitioned: true,
+    });
+  } catch (error) {
+    console.error('Failed to set auth cookie:', error);
+    // Handle error appropriately
+    return { success: false, message: 'Authentication failed.' };
+  }
+
+  redirect('/');
+}
+
 // --- DASHBOARD & ANALYTICS ---
 export async function getDashboardChartData() {
   const today = new Date();

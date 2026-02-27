@@ -8,6 +8,7 @@ export async function POST() {
     sameSite: 'none',
     path: '/',
     maxAge: 86400, // 1 day
+    partitioned: true,
   });
   return response;
 }
