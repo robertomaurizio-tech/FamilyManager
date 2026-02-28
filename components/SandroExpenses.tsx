@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { addSpesaSandro, paySpesaSandro, deleteSpesaSandro, payAllSpeseSandro } from '@/lib/actions';
 import { formatCurrency, formatDate } from '@/lib/utils';
-import { User, Plus, Trash2, CheckCircle2, Clock, Wallet, CreditCard } from 'lucide-react';
+import { User, Plus, Trash2, CheckCircle2, Clock, Wallet, CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 import Modal from '@/components/Modal';
@@ -20,6 +20,7 @@ export default function SandroExpenses({
   const [items, setItems] = React.useState(initialItems);
   const [total, setTotal] = React.useState(initialTotal);
   const [isPending, setIsPending] = React.useState(false);
+  const [expandedPayment, setExpandedPayment] = React.useState<string | null>(null);
   
   const [modalConfig, setModalConfig] = React.useState<{
     isOpen: boolean;
@@ -199,25 +200,64 @@ export default function SandroExpenses({
               <CreditCard size={20} /> Storico Pagamenti
             </h2>
             <div className="space-y-3">
-              {pagamenti.map((p, idx) => (
-                <div 
-                  key={idx}
-                  className="bg-zinc-50 p-3 sm:p-4 rounded-2xl border border-zinc-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center bg-emerald-100 text-emerald-700">
-                      <CheckCircle2 size={20} />
-                    </div>
-                    <div>
-                      <p className="font-bold text-indigo-600">Totale Pagato</p>
-                      <p className="text-xs text-zinc-500">Data saldo: {formatDate(p.data_pagamento)}</p>
-                    </div>
+              {pagamenti.map((p, idx) => {
+                const isExpanded = expandedPayment === p.data_pagamento;
+                const paymentExpenses = items.filter(item => item.data_pagamento === p.data_pagamento);
+                
+                return (
+                  <div 
+                    key={idx}
+                    className="bg-zinc-50 rounded-2xl border border-zinc-200 overflow-hidden"
+                  >
+                    <button 
+                      onClick={() => setExpandedPayment(isExpanded ? null : p.data_pagamento)}
+                      className="w-full p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-zinc-100 transition-colors text-left"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center bg-emerald-100 text-emerald-700">
+                          <CheckCircle2 size={20} />
+                        </div>
+                        <div>
+                          <p className="font-bold text-indigo-600">Totale Pagato</p>
+                          <p className="text-xs text-zinc-500">Data saldo: {formatDate(p.data_pagamento)}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between sm:justify-end gap-4">
+                        <span className="font-mono font-bold text-emerald-700 text-lg">
+                          {formatCurrency(p.totale)}
+                        </span>
+                        {isExpanded ? <ChevronUp size={20} className="text-zinc-400" /> : <ChevronDown size={20} className="text-zinc-400" />}
+                      </div>
+                    </button>
+                    
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="border-t border-zinc-200 bg-white"
+                        >
+                          <div className="p-4 space-y-2">
+                            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Dettaglio Spese</p>
+                            {paymentExpenses.map((exp) => (
+                              <div key={exp.id} className="flex items-center justify-between py-2 border-b border-zinc-50 last:border-0">
+                                <div className="min-w-0">
+                                  <p className="text-sm font-medium text-zinc-700 truncate">{exp.descrizione}</p>
+                                  <p className="text-[10px] text-zinc-400">{formatDate(exp.data)}</p>
+                                </div>
+                                <span className="text-sm font-mono font-bold text-zinc-600 ml-4">
+                                  {formatCurrency(exp.importo)}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                  <span className="font-mono font-bold text-emerald-700 text-lg sm:text-right">
-                    {formatCurrency(p.totale)}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
               {pagamenti.length === 0 && (
                 <p className="text-center py-10 text-zinc-400 border border-dashed border-zinc-200 rounded-2xl">Nessun pagamento registrato.</p>
               )}

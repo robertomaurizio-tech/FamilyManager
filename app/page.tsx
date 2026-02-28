@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import DashboardChart from '@/components/DashboardChart';
+import Link from 'next/link';
 import { 
   ArrowUpRight, 
   ArrowDownRight, 
@@ -77,7 +78,9 @@ export default async function Dashboard() {
           <section className="bg-zinc-50 rounded-3xl p-4 sm:p-6 border border-zinc-100">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold font-display">Ultime Spese</h2>
-              <button className="text-sm font-semibold text-zinc-500 hover:text-indigo-600">Vedi tutte</button>
+              <Link href="/expenses" className="text-sm font-semibold text-zinc-500 hover:text-indigo-600 transition-colors">
+                Vedi tutte
+              </Link>
             </div>
             <div className="space-y-4">
               {spese.slice(0, 5).map((spesa) => {

@@ -87,7 +87,7 @@ export default function DashboardChart({ data: initialData }: { data: any[] }) {
               contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
             />
             <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-            <Bar dataKey="normali" name="Normali" stackId="a" fill="#18181b" radius={[0, 0, 0, 0]} />
+            <Bar dataKey="normali" name="Normali" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} />
             <Bar dataKey="vacanza" name="Vacanza" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} />
             <Bar dataKey="extra" name="Extra" stackId="a" fill="#f59e0b" radius={[4, 4, 0, 0]} />
           </BarChart>

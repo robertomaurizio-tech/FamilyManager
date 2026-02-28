@@ -55,21 +55,23 @@ export default async function MonthlyDetailPage({ params }: { params: Promise<{ 
             Per Categoria
           </h2>
           <div className="space-y-4">
-            {detail.byCategory.map((c, i) => {
-              const catInfo = categorie.find(cat => cat.nome === c.categoria);
-              return (
-                <div key={i} className="flex items-center justify-between group">
-                  <div className="flex items-center gap-3">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
-                      style={{ backgroundColor: catInfo?.colore || '#e4e4e7' }}
-                    />
-                    <span className="font-medium text-zinc-700">{c.categoria}</span>
+            {detail.byCategory
+              .sort((a, b) => b.totale - a.totale)
+              .map((c, i) => {
+                const catInfo = categorie.find(cat => cat.nome === c.categoria);
+                return (
+                  <div key={i} className="flex items-center justify-between group">
+                    <div className="flex items-center gap-3">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: catInfo?.colore || '#e4e4e7' }}
+                      />
+                      <span className="font-medium text-zinc-700">{c.categoria}</span>
+                    </div>
+                    <span className="font-mono font-bold text-indigo-600">{formatCurrency(c.totale)}</span>
                   </div>
-                  <span className="font-mono font-bold text-indigo-600">{formatCurrency(c.totale)}</span>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </section>
 
