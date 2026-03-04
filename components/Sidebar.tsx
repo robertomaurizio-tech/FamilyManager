@@ -14,9 +14,11 @@ import {
   X,
   User,
   Tag,
-  Settings
+  Settings,
+  Download
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import PWAInstall from '@/components/PWAInstall';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -94,7 +96,8 @@ export default function Sidebar() {
           </nav>
 
           <div className="mt-auto pt-6 border-t border-zinc-200">
-            <div className="p-3 bg-zinc-100 rounded-xl">
+            <PWAInstall />
+            <div className="mt-4 p-3 bg-zinc-100 rounded-xl">
               <p className="text-xs font-semibold text-zinc-500 uppercase mb-1">Status</p>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />

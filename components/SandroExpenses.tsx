@@ -262,15 +262,14 @@ export default function SandroExpenses({
               <Wallet className="mb-4 opacity-50" size={32} />
               <p className="text-zinc-400 font-medium uppercase tracking-wider text-xs">Totale da pagare</p>
               <h3 className="text-4xl font-mono font-bold mt-1">{formatCurrency(total)}</h3>
-              {pendingItems.length > 0 && (
-                <button
-                  onClick={handlePayAll}
-                  className="w-full mt-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2"
-                >
-                  <CheckCircle2 size={20} />
-                  Salda tutto ora
-                </button>
-              )}
+              <button
+                onClick={handlePayAll}
+                disabled={total <= 0}
+                className="w-full mt-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <CheckCircle2 size={20} />
+                Salda tutto ora
+              </button>
             </div>
             <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/5 rounded-full blur-3xl" />
           </div>
