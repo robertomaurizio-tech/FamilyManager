@@ -43,7 +43,9 @@ export default function Sidebar() {
           <Menu size={24} />
         </button>
         <span className="font-bold text-xl tracking-tight">FamilyManager</span>
-        <div className="w-10" /> {/* Placeholder to balance space */}
+        <div className="flex items-center">
+          <PWAInstall isCompact />
+        </div>
       </div>
 
       {/* Sidebar Desktop */}
