@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { addSpesaSandro, paySpesaSandro, deleteSpesaSandro, payAllSpeseSandro } from '@/lib/actions';
+import { addSpesaSandro, paySpesaSandro, deleteSpesaSandro } from '@/lib/actions';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { User, Plus, Trash2, CheckCircle2, Clock, Wallet, CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -52,19 +52,6 @@ export default function SandroExpenses({
   const handlePay = async (id: number) => {
     await paySpesaSandro(id);
     window.location.reload();
-  };
-
-  const handlePayAll = async () => {
-    setModalConfig({
-      isOpen: true,
-      title: 'Salda Tutto',
-      message: 'Sei sicuro di voler segnare tutte le spese come pagate in data odierna?',
-      type: 'warning',
-      onConfirm: async () => {
-        await payAllSpeseSandro();
-        window.location.reload();
-      }
-    });
   };
 
   const handleDelete = async (id: number) => {
@@ -142,15 +129,6 @@ export default function SandroExpenses({
               <h2 className="text-lg font-bold flex items-center gap-2">
                 <Clock size={20} /> Spese in Sospeso
               </h2>
-              {pendingItems.length > 0 && (
-                <button
-                  onClick={handlePayAll}
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-colors shadow-sm"
-                >
-                  <CheckCircle2 size={16} />
-                  Paga Tutto
-                </button>
-              )}
             </div>
             <div className="space-y-3">
               {pendingItems.map((item) => (
@@ -271,15 +249,6 @@ export default function SandroExpenses({
               <Wallet className="mb-4 opacity-50" size={32} />
               <p className="text-zinc-400 font-medium uppercase tracking-wider text-xs">Totale da pagare</p>
               <h3 className="text-4xl font-mono font-bold mt-1">{formatCurrency(total)}</h3>
-              {pendingItems.length > 0 && (
-                <button
-                  onClick={handlePayAll}
-                  className="w-full mt-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2"
-                >
-                  <CheckCircle2 size={20} />
-                  Salda tutto ora
-                </button>
-              )}
             </div>
             <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/5 rounded-full blur-3xl" />
           </div>
