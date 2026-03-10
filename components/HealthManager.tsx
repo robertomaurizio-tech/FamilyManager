@@ -13,27 +13,31 @@ import {
   Clock,
   Info,
   Camera,
-  CheckSquare
+  CheckSquare,
+  Edit2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import Modal from '@/components/Modal';
 import { 
   addPersona, 
   deletePersona, 
   getMalattie, 
   addMalattia, 
+  updateMalattia,
   deleteMalattia, 
   getFarmaciMalattia, 
   addFarmacoMalattia, 
-  deleteFarmacoMalattia 
+  deleteFarmacoMalattia,
+  updatePersonaFoto
 } from '@/lib/actions';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { format, differenceInYears } from 'date-fns';
 import { it } from 'date-fns/locale';
 
 interface Persona {
   id: number;
   nome: string;
-  eta: number;
+  data_nascita: string | null;
   foto: string | null;
 }
 
@@ -51,8 +55,8 @@ interface Farmaco {
   id_malattia: number;
   nome_farmaco: string;
   dosaggio: string | null;
-  frequenza: string | null;
-  durata: string | null;
+  data: string | null;
+  ora: string | null;
 }
 
 export default function HealthManager({ initialPersone }: { initialPersone: Persona[] }) {
@@ -63,7 +67,7 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
   const [farmaci, setFarmaci] = React.useState<Record<number, Farmaco[]>>({});
   
   const [showAddPersona, setShowAddPersona] = React.useState(false);
-  const [newPersona, setNewPersona] = React.useState({ nome: '', eta: '', foto: '' });
+  const [newPersona, setNewPersona] = React.useState({ nome: '', dataNascita: '', foto: '' });
   
   const [showAddMalattia, setShowAddMalattia] = React.useState(false);
   const [newMalattia, setNewMalattia] = React.useState({ 
@@ -76,8 +80,23 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
   const [newFarmaco, setNewFarmaco] = React.useState({
     nome: '',
     dosaggio: '',
-    frequenza: '',
-    durata: ''
+    data: format(new Date(), 'yyyy-MM-dd'),
+    ora: format(new Date(), 'HH:mm')
+  });
+
+  const [editingMalattia, setEditingMalattia] = React.useState<Malattia | null>(null);
+  const [confirmModal, setConfirmModal] = React.useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type: 'danger' | 'warning';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'danger'
   });
 
   const loadMalattie = React.useCallback(async (idPersona: number) => {
@@ -110,30 +129,76 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
   const handleAddPersona = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPersona.nome) return;
-    await addPersona(newPersona.nome, parseInt(newPersona.eta) || 0, newPersona.foto);
-    setNewPersona({ nome: '', eta: '', foto: '' });
+    await addPersona(newPersona.nome, newPersona.dataNascita, newPersona.foto);
+    setNewPersona({ nome: '', dataNascita: '', foto: '' });
     setShowAddPersona(false);
     // Refresh persone list (in a real app we'd get the updated list from server)
     window.location.reload();
   };
 
+  const handleUpdatePhoto = async (id: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        await updatePersonaFoto(id, base64);
+        // Update local state
+        setPersone(prev => prev.map(p => p.id === id ? { ...p, foto: base64 } : p));
+        if (selectedPersona?.id === id) {
+          setSelectedPersona(prev => prev ? { ...prev, foto: base64 } : null);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const calculateAge = (dob: string | null) => {
+    if (!dob) return null;
+    try {
+      return differenceInYears(new Date(), new Date(dob));
+    } catch (e) {
+      return null;
+    }
+  };
+
   const handleDeletePersona = async (id: number) => {
-    if (!confirm('Sei sicuro di voler eliminare questa persona e tutti i suoi dati sanitari?')) return;
-    await deletePersona(id);
-    if (selectedPersona?.id === id) setSelectedPersona(null);
-    window.location.reload();
+    setConfirmModal({
+      isOpen: true,
+      title: 'Elimina Membro',
+      message: 'Sei sicuro di voler eliminare questa persona e tutti i suoi dati sanitari? Questa azione non può essere annullata.',
+      type: 'danger',
+      onConfirm: async () => {
+        await deletePersona(id);
+        if (selectedPersona?.id === id) setSelectedPersona(null);
+        window.location.reload();
+      }
+    });
   };
 
   const handleAddMalattia = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPersona || !newMalattia.nome) return;
-    await addMalattia(
-      selectedPersona.id, 
-      newMalattia.nome, 
-      newMalattia.dataInizio, 
-      newMalattia.dataFine || undefined, 
-      newMalattia.note || undefined
-    );
+    
+    if (editingMalattia) {
+      await updateMalattia(
+        editingMalattia.id,
+        newMalattia.nome,
+        newMalattia.dataInizio,
+        newMalattia.dataFine || undefined,
+        newMalattia.note || undefined
+      );
+      setEditingMalattia(null);
+    } else {
+      await addMalattia(
+        selectedPersona.id, 
+        newMalattia.nome, 
+        newMalattia.dataInizio, 
+        newMalattia.dataFine || undefined, 
+        newMalattia.note || undefined
+      );
+    }
+
     setNewMalattia({ 
       nome: '', 
       dataInizio: format(new Date(), 'yyyy-MM-dd'), 
@@ -144,10 +209,28 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
     loadMalattie(selectedPersona.id);
   };
 
+  const handleEditMalattia = (m: Malattia) => {
+    setEditingMalattia(m);
+    setNewMalattia({
+      nome: m.nome_malattia,
+      dataInizio: m.data_inizio,
+      dataFine: m.data_fine || '',
+      note: m.note_medico || ''
+    });
+    setShowAddMalattia(true);
+  };
+
   const handleDeleteMalattia = async (id: number) => {
-    if (!confirm('Sei sicuro di voler eliminare questo evento malattia?')) return;
-    await deleteMalattia(id);
-    if (selectedPersona) loadMalattie(selectedPersona.id);
+    setConfirmModal({
+      isOpen: true,
+      title: 'Elimina Evento',
+      message: 'Sei sicuro di voler eliminare questo evento malattia? Tutti i farmaci associati verranno rimossi.',
+      type: 'danger',
+      onConfirm: async () => {
+        await deleteMalattia(id);
+        if (selectedPersona) loadMalattie(selectedPersona.id);
+      }
+    });
   };
 
   const handleAddFarmaco = async (idMalattia: number) => {
@@ -156,16 +239,29 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
       idMalattia,
       newFarmaco.nome,
       newFarmaco.dosaggio,
-      newFarmaco.frequenza,
-      newFarmaco.durata
+      newFarmaco.data,
+      newFarmaco.ora
     );
-    setNewFarmaco({ nome: '', dosaggio: '', frequenza: '', durata: '' });
+    setNewFarmaco({ 
+      nome: '', 
+      dosaggio: '', 
+      data: format(new Date(), 'yyyy-MM-dd'), 
+      ora: format(new Date(), 'HH:mm') 
+    });
     loadFarmaci(idMalattia);
   };
 
   const handleDeleteFarmaco = async (idFarmaco: number, idMalattia: number) => {
-    await deleteFarmacoMalattia(idFarmaco);
-    loadFarmaci(idMalattia);
+    setConfirmModal({
+      isOpen: true,
+      title: 'Elimina Farmaco',
+      message: 'Sei sicuro di voler eliminare questa somministrazione?',
+      type: 'danger',
+      onConfirm: async () => {
+        await deleteFarmacoMalattia(idFarmaco);
+        loadFarmaci(idMalattia);
+      }
+    });
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -194,15 +290,20 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
                 : "border-zinc-100 bg-white hover:border-zinc-200"
             )}
           >
-            <div className="w-16 h-16 rounded-full bg-zinc-100 mb-3 overflow-hidden flex items-center justify-center border border-zinc-200">
+            <div className="w-16 h-16 rounded-full bg-zinc-100 mb-3 overflow-hidden flex items-center justify-center border border-zinc-200 relative group/photo">
               {p.foto ? (
                 <img src={p.foto} alt={p.nome} className="w-full h-full object-cover" />
               ) : (
                 <UserPlus size={24} className="text-zinc-400" />
               )}
+              
+              <label className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/photo:opacity-100 transition-opacity cursor-pointer">
+                <Camera size={16} className="text-white" />
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUpdatePhoto(p.id, e)} />
+              </label>
             </div>
             <span className="font-bold text-zinc-900 truncate w-full text-center">{p.nome}</span>
-            <span className="text-xs text-zinc-500">{p.eta} anni</span>
+            <span className="text-xs text-zinc-500">{calculateAge(p.data_nascita)} anni</span>
             
             {selectedPersona?.id === p.id && (
               <button 
@@ -272,13 +373,13 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-zinc-700 mb-1">Età</label>
+                  <label className="block text-sm font-medium text-zinc-700 mb-1">Data di Nascita</label>
                   <input
-                    type="number"
-                    value={newPersona.eta}
-                    onChange={(e) => setNewPersona({ ...newPersona, eta: e.target.value })}
+                    type="date"
+                    required
+                    value={newPersona.dataNascita}
+                    onChange={(e) => setNewPersona({ ...newPersona, dataNascita: e.target.value })}
                     className="w-full px-4 py-2 rounded-xl border border-zinc-200 focus:ring-2 focus:ring-indigo-500 outline-none"
-                    placeholder="Esempio: 35"
                   />
                 </div>
                 <button
@@ -319,7 +420,22 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
-                <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm space-y-4">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold">
+                  {editingMalattia ? 'Modifica Evento' : 'Nuovo Evento'}
+                </h2>
+                <button 
+                  onClick={() => {
+                    setShowAddMalattia(false);
+                    setEditingMalattia(null);
+                  }} 
+                  className="p-2 hover:bg-zinc-100 rounded-full"
+                >
+                  <Plus size={20} className="rotate-45" />
+                </button>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="sm:col-span-2">
                       <label className="block text-sm font-medium text-zinc-700 mb-1">Patologia / Sintomo</label>
@@ -366,10 +482,13 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
                       onClick={handleAddMalattia}
                       className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors"
                     >
-                      Salva Evento
+                      {editingMalattia ? 'Aggiorna Evento' : 'Salva Evento'}
                     </button>
                     <button
-                      onClick={() => setShowAddMalattia(false)}
+                      onClick={() => {
+                        setShowAddMalattia(false);
+                        setEditingMalattia(null);
+                      }}
                       className="px-6 py-3 bg-zinc-100 text-zinc-600 rounded-xl font-bold hover:bg-zinc-200 transition-colors"
                     >
                       Annulla
@@ -411,6 +530,12 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleEditMalattia(m); }}
+                        className="p-2 text-zinc-400 hover:text-indigo-600 transition-colors"
+                      >
+                        <Edit2 size={18} />
+                      </button>
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleDeleteMalattia(m.id); }}
                         className="p-2 text-zinc-400 hover:text-red-600 transition-colors"
@@ -460,7 +585,7 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
                                     <div>
                                       <p className="text-sm font-bold text-zinc-900">{f.nome_farmaco}</p>
                                       <p className="text-xs text-zinc-500">
-                                        {f.dosaggio} • {f.frequenza} • {f.durata}
+                                        {f.dosaggio} • {f.data ? format(new Date(f.data), 'd MMM', { locale: it }) : ''} alle {f.ora}
                                       </p>
                                     </div>
                                   </div>
@@ -491,17 +616,15 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
                                     className="px-3 py-1.5 rounded-lg border border-indigo-100 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
                                   />
                                   <input
-                                    type="text"
-                                    placeholder="Frequenza (es. ogni 8 ore)"
-                                    value={newFarmaco.frequenza}
-                                    onChange={(e) => setNewFarmaco({ ...newFarmaco, frequenza: e.target.value })}
+                                    type="date"
+                                    value={newFarmaco.data}
+                                    onChange={(e) => setNewFarmaco({ ...newFarmaco, data: e.target.value })}
                                     className="px-3 py-1.5 rounded-lg border border-indigo-100 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
                                   />
                                   <input
-                                    type="text"
-                                    placeholder="Durata (es. 5 giorni)"
-                                    value={newFarmaco.durata}
-                                    onChange={(e) => setNewFarmaco({ ...newFarmaco, durata: e.target.value })}
+                                    type="time"
+                                    value={newFarmaco.ora}
+                                    onChange={(e) => setNewFarmaco({ ...newFarmaco, ora: e.target.value })}
                                     className="px-3 py-1.5 rounded-lg border border-indigo-100 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
                                   />
                                 </div>
@@ -525,6 +648,15 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
           </div>
         </div>
       )}
+
+      <Modal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
+      />
     </div>
   );
 }

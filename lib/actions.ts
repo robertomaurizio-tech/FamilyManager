@@ -557,8 +557,19 @@ export async function getPersone() {
   return db.prepare('SELECT * FROM persone ORDER BY nome ASC').all() as any[];
 }
 
-export async function addPersona(nome: string, eta: number, foto?: string) {
-  db.prepare('INSERT INTO persone (nome, eta, foto) VALUES (?, ?, ?)').run(nome, eta, foto || null);
+export async function addPersona(nome: string, dataNascita: string, foto?: string) {
+  db.prepare('INSERT INTO persone (nome, data_nascita, foto) VALUES (?, ?, ?)').run(nome, dataNascita, foto || null);
+  revalidatePath('/health');
+}
+
+export async function updatePersona(id: number, nome: string, dataNascita: string, foto?: string) {
+  db.prepare('UPDATE persone SET nome = ?, data_nascita = ?, foto = ? WHERE id = ?')
+    .run(nome, dataNascita, foto || null, id);
+  revalidatePath('/health');
+}
+
+export async function updatePersonaFoto(id: number, foto: string) {
+  db.prepare('UPDATE persone SET foto = ? WHERE id = ?').run(foto, id);
   revalidatePath('/health');
 }
 
@@ -593,9 +604,9 @@ export async function getFarmaciMalattia(idMalattia: number) {
   return db.prepare('SELECT * FROM farmaci_malattia WHERE id_malattia = ?').all(idMalattia) as any[];
 }
 
-export async function addFarmacoMalattia(idMalattia: number, nome: string, dosaggio: string, frequenza: string, durata: string) {
-  db.prepare('INSERT INTO farmaci_malattia (id_malattia, nome_farmaco, dosaggio, frequenza, durata) VALUES (?, ?, ?, ?, ?)')
-    .run(idMalattia, nome, dosaggio, frequenza, durata);
+export async function addFarmacoMalattia(idMalattia: number, nome: string, dosaggio: string, data: string, ora: string) {
+  db.prepare('INSERT INTO farmaci_malattia (id_malattia, nome_farmaco, dosaggio, data, ora) VALUES (?, ?, ?, ?, ?)')
+    .run(idMalattia, nome, dosaggio, data, ora);
   revalidatePath('/health');
 }
 
