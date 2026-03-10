@@ -601,12 +601,18 @@ export async function deleteMalattia(id: number) {
 }
 
 export async function getFarmaciMalattia(idMalattia: number) {
-  return db.prepare('SELECT * FROM farmaci_malattia WHERE id_malattia = ?').all(idMalattia) as any[];
+  return db.prepare('SELECT * FROM farmaci_malattia WHERE id_malattia = ? ORDER BY data DESC, ora DESC').all(idMalattia) as any[];
 }
 
 export async function addFarmacoMalattia(idMalattia: number, nome: string, dosaggio: string, data: string, ora: string) {
   db.prepare('INSERT INTO farmaci_malattia (id_malattia, nome_farmaco, dosaggio, data, ora) VALUES (?, ?, ?, ?, ?)')
     .run(idMalattia, nome, dosaggio, data, ora);
+  revalidatePath('/health');
+}
+
+export async function updateFarmacoMalattia(id: number, nome: string, dosaggio: string, data: string, ora: string) {
+  db.prepare('UPDATE farmaci_malattia SET nome_farmaco = ?, dosaggio = ?, data = ?, ora = ? WHERE id = ?')
+    .run(nome, dosaggio, data, ora, id);
   revalidatePath('/health');
 }
 

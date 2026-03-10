@@ -27,6 +27,7 @@ import {
   deleteMalattia, 
   getFarmaciMalattia, 
   addFarmacoMalattia, 
+  updateFarmacoMalattia,
   deleteFarmacoMalattia,
   updatePersonaFoto
 } from '@/lib/actions';
@@ -85,6 +86,7 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
   });
 
   const [editingMalattia, setEditingMalattia] = React.useState<Malattia | null>(null);
+  const [editingFarmaco, setEditingFarmaco] = React.useState<Farmaco | null>(null);
   const [confirmModal, setConfirmModal] = React.useState<{
     isOpen: boolean;
     title: string;
@@ -235,13 +237,26 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
 
   const handleAddFarmaco = async (idMalattia: number) => {
     if (!newFarmaco.nome) return;
-    await addFarmacoMalattia(
-      idMalattia,
-      newFarmaco.nome,
-      newFarmaco.dosaggio,
-      newFarmaco.data,
-      newFarmaco.ora
-    );
+    
+    if (editingFarmaco) {
+      await updateFarmacoMalattia(
+        editingFarmaco.id,
+        newFarmaco.nome,
+        newFarmaco.dosaggio,
+        newFarmaco.data,
+        newFarmaco.ora
+      );
+      setEditingFarmaco(null);
+    } else {
+      await addFarmacoMalattia(
+        idMalattia,
+        newFarmaco.nome,
+        newFarmaco.dosaggio,
+        newFarmaco.data,
+        newFarmaco.ora
+      );
+    }
+
     setNewFarmaco({ 
       nome: '', 
       dosaggio: '', 
@@ -249,6 +264,16 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
       ora: format(new Date(), 'HH:mm') 
     });
     loadFarmaci(idMalattia);
+  };
+
+  const handleEditFarmaco = (f: Farmaco) => {
+    setEditingFarmaco(f);
+    setNewFarmaco({
+      nome: f.nome_farmaco,
+      dosaggio: f.dosaggio || '',
+      data: f.data || format(new Date(), 'yyyy-MM-dd'),
+      ora: f.ora || format(new Date(), 'HH:mm')
+    });
   };
 
   const handleDeleteFarmaco = async (idFarmaco: number, idMalattia: number) => {
@@ -589,12 +614,20 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
                                       </p>
                                     </div>
                                   </div>
-                                  <button 
-                                    onClick={() => handleDeleteFarmaco(f.id, m.id)}
-                                    className="p-1.5 text-zinc-300 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                                  >
-                                    <Trash2 size={14} />
-                                  </button>
+                                  <div className="flex items-center gap-1">
+                                    <button 
+                                      onClick={() => handleEditFarmaco(f)}
+                                      className="p-1.5 text-zinc-300 hover:text-indigo-600 transition-colors opacity-0 group-hover:opacity-100"
+                                    >
+                                      <Edit2 size={14} />
+                                    </button>
+                                    <button 
+                                      onClick={() => handleDeleteFarmaco(f.id, m.id)}
+                                      className="p-1.5 text-zinc-300 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
+                                  </div>
                                 </div>
                               ))}
 
@@ -628,13 +661,31 @@ export default function HealthManager({ initialPersone }: { initialPersone: Pers
                                     className="px-3 py-1.5 rounded-lg border border-indigo-100 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
                                   />
                                 </div>
-                                <button
-                                  onClick={() => handleAddFarmaco(m.id)}
-                                  className="w-full py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
-                                >
-                                  <Plus size={16} />
-                                  Aggiungi Farmaco
-                                </button>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => handleAddFarmaco(m.id)}
+                                    className="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+                                  >
+                                    <Plus size={16} />
+                                    {editingFarmaco ? 'Aggiorna Farmaco' : 'Aggiungi Farmaco'}
+                                  </button>
+                                  {editingFarmaco && (
+                                    <button
+                                      onClick={() => {
+                                        setEditingFarmaco(null);
+                                        setNewFarmaco({ 
+                                          nome: '', 
+                                          dosaggio: '', 
+                                          data: format(new Date(), 'yyyy-MM-dd'), 
+                                          ora: format(new Date(), 'HH:mm') 
+                                        });
+                                      }}
+                                      className="px-4 py-2 bg-zinc-100 text-zinc-600 rounded-lg text-sm font-bold hover:bg-zinc-200 transition-colors"
+                                    >
+                                      Annulla
+                                    </button>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
