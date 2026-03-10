@@ -348,6 +348,9 @@ export async function deleteAllData() {
     db.prepare('DELETE FROM vacanze').run();
     db.prepare('DELETE FROM spese_sandro').run();
     db.prepare('DELETE FROM categorie').run();
+    db.prepare('DELETE FROM persone').run();
+    db.prepare('DELETE FROM malattie').run();
+    db.prepare('DELETE FROM farmaci_malattia').run();
 
     revalidatePath('/');
     revalidatePath('/expenses');
@@ -356,6 +359,7 @@ export async function deleteAllData() {
     revalidatePath('/tasks');
     revalidatePath('/sandro');
     revalidatePath('/categories');
+    revalidatePath('/health');
 
     return { success: true, message: 'Tutti i dati sono stati cancellati con successo!' };
   } catch (error: any) {
@@ -546,4 +550,56 @@ export async function getMonthlyExpensesDetail(month: string) {
     byVacanza,
     extraTotal: extraTotal.totale || 0
   };
+}
+
+// --- SALUTE E MALATTIE ---
+export async function getPersone() {
+  return db.prepare('SELECT * FROM persone ORDER BY nome ASC').all() as any[];
+}
+
+export async function addPersona(nome: string, eta: number, foto?: string) {
+  db.prepare('INSERT INTO persone (nome, eta, foto) VALUES (?, ?, ?)').run(nome, eta, foto || null);
+  revalidatePath('/health');
+}
+
+export async function deletePersona(id: number) {
+  db.prepare('DELETE FROM persone WHERE id = ?').run(id);
+  revalidatePath('/health');
+}
+
+export async function getMalattie(idPersona: number) {
+  return db.prepare('SELECT * FROM malattie WHERE id_persona = ? ORDER BY data_inizio DESC').all(idPersona) as any[];
+}
+
+export async function addMalattia(idPersona: number, nome: string, dataInizio: string, dataFine?: string, note?: string) {
+  const result = db.prepare('INSERT INTO malattie (id_persona, nome_malattia, data_inizio, data_fine, note_medico) VALUES (?, ?, ?, ?, ?)')
+    .run(idPersona, nome, dataInizio, dataFine || null, note || null);
+  revalidatePath('/health');
+  return result.lastInsertRowid as number;
+}
+
+export async function updateMalattia(id: number, nome: string, dataInizio: string, dataFine?: string, note?: string) {
+  db.prepare('UPDATE malattie SET nome_malattia = ?, data_inizio = ?, data_fine = ?, note_medico = ? WHERE id = ?')
+    .run(nome, dataInizio, dataFine || null, note || null, id);
+  revalidatePath('/health');
+}
+
+export async function deleteMalattia(id: number) {
+  db.prepare('DELETE FROM malattie WHERE id = ?').run(id);
+  revalidatePath('/health');
+}
+
+export async function getFarmaciMalattia(idMalattia: number) {
+  return db.prepare('SELECT * FROM farmaci_malattia WHERE id_malattia = ?').all(idMalattia) as any[];
+}
+
+export async function addFarmacoMalattia(idMalattia: number, nome: string, dosaggio: string, frequenza: string, durata: string) {
+  db.prepare('INSERT INTO farmaci_malattia (id_malattia, nome_farmaco, dosaggio, frequenza, durata) VALUES (?, ?, ?, ?, ?)')
+    .run(idMalattia, nome, dosaggio, frequenza, durata);
+  revalidatePath('/health');
+}
+
+export async function deleteFarmacoMalattia(id: number) {
+  db.prepare('DELETE FROM farmaci_malattia WHERE id = ?').run(id);
+  revalidatePath('/health');
 }

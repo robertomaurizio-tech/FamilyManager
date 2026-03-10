@@ -15,7 +15,8 @@ import {
   User,
   Tag,
   Settings,
-  Download
+  Download,
+  HeartPulse
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import PWAInstall from '@/components/PWAInstall';
@@ -23,7 +24,7 @@ import PWAInstall from '@/components/PWAInstall';
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Spese', href: '/expenses', icon: Receipt },
-
+  { name: 'Salute', href: '/health', icon: HeartPulse },
   { name: 'Lista Spesa', href: '/shopping-list', icon: ShoppingCart },
   { name: 'Lavori', href: '/tasks', icon: CheckSquare },
   { name: 'Vacanze', href: '/holidays', icon: Palmtree },
