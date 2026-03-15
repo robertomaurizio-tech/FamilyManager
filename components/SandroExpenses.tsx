@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { addSpesaSandro, paySpesaSandro, deleteSpesaSandro, payAllSpeseSandro } from '@/lib/actions';
+import { addSpesaSandro, paySpesaSandro, deleteSpesaSandro, payAllSpeseSandro, deletePaymentSandro } from '@/lib/actions';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { User, Plus, Trash2, CheckCircle2, Clock, Wallet, CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -49,11 +49,6 @@ export default function SandroExpenses({
     window.location.reload();
   };
 
-  const handlePay = async (id: number) => {
-    await paySpesaSandro(id);
-    window.location.reload();
-  };
-
   const handlePayAll = async () => {
     setModalConfig({
       isOpen: true,
@@ -75,6 +70,19 @@ export default function SandroExpenses({
       type: 'danger',
       onConfirm: async () => {
         await deleteSpesaSandro(id);
+        window.location.reload();
+      }
+    });
+  };
+
+  const handleDeletePayment = async (dataPagamento: string) => {
+    setModalConfig({
+      isOpen: true,
+      title: 'Annulla Pagamento',
+      message: 'Sei sicuro di voler annullare questo pagamento? Le spese verranno ripristinate come non pagate.',
+      type: 'warning',
+      onConfirm: async () => {
+        await deletePaymentSandro(dataPagamento);
         window.location.reload();
       }
     });
@@ -162,21 +170,12 @@ export default function SandroExpenses({
                     <span className="font-mono font-bold text-indigo-600">
                       {formatCurrency(item.importo)}
                     </span>
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => handlePay(item.id)}
-                        className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                        title="Segna come pagato"
-                      >
-                        <CheckCircle2 size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="p-2 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="p-2 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 size={18} />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -217,7 +216,19 @@ export default function SandroExpenses({
                         <span className="font-mono font-bold text-emerald-700 text-lg">
                           {formatCurrency(p.totale)}
                         </span>
-                        {isExpanded ? <ChevronUp size={20} className="text-zinc-400" /> : <ChevronDown size={20} className="text-zinc-400" />}
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeletePayment(p.data_pagamento);
+                            }}
+                            className="p-2 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            title="Annulla pagamento"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                          {isExpanded ? <ChevronUp size={20} className="text-zinc-400" /> : <ChevronDown size={20} className="text-zinc-400" />}
+                        </div>
                       </div>
                     </button>
                     

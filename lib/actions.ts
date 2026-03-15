@@ -229,6 +229,11 @@ export async function deleteSpesaSandro(id: number) {
   revalidatePath('/sandro');
 }
 
+export async function deletePaymentSandro(dataPagamento: string) {
+  db.prepare('UPDATE spese_sandro SET pagato = 0, data_pagamento = NULL WHERE data_pagamento = ?').run(dataPagamento);
+  revalidatePath('/sandro');
+}
+
 // Helper to ensure category exists
 async function ensureCategoryExists(categoryName: string) {
   const existingCategory = db.prepare('SELECT id FROM categorie WHERE nome = ?').get(categoryName) as { id: number } | undefined;
