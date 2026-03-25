@@ -331,7 +331,7 @@ export default function VehicleManager({ initialVeicoli }: { initialVeicoli: Vei
           {selectedVeicolo ? (
             <div className="space-y-6">
               <div className="bg-white p-6 rounded-3xl border border-zinc-100 shadow-sm">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                   <div>
                     <h3 className="text-xl font-bold text-zinc-900">{selectedVeicolo.nome}</h3>
                     <p className="text-sm text-zinc-500">Cronologia Manutenzioni</p>
@@ -347,7 +347,7 @@ export default function VehicleManager({ initialVeicoli }: { initialVeicoli: Vei
                       });
                       setShowAddManutenzione(!showAddManutenzione);
                     }}
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl font-bold hover:bg-indigo-100 transition-colors"
+                    className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl font-bold hover:bg-indigo-100 transition-colors w-full sm:w-auto"
                   >
                     <Plus size={18} />
                     Nuova Manutenzione
@@ -435,13 +435,13 @@ export default function VehicleManager({ initialVeicoli }: { initialVeicoli: Vei
                       </div>
                       
                       <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100 group-hover:border-indigo-100 transition-colors">
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                          <div className="space-y-2 w-full">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                              <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full w-fit">
                                 {format(new Date(m.data), 'dd MMM yyyy', { locale: it })}
                               </span>
-                              <h4 className="font-bold text-zinc-900">{m.descrizione}</h4>
+                              <h4 className="font-bold text-zinc-900 break-words">{m.descrizione}</h4>
                             </div>
                             <div className="flex flex-wrap gap-4">
                               {m.km && (
@@ -458,16 +458,16 @@ export default function VehicleManager({ initialVeicoli }: { initialVeicoli: Vei
                               )}
                             </div>
                           </div>
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 self-end sm:self-start">
                             <button 
                               onClick={() => handleEditManutenzione(m)}
-                              className="p-2 text-zinc-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                              className="p-2 text-zinc-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all sm:opacity-0 sm:group-hover:opacity-100"
                             >
                               <Edit2 size={16} />
                             </button>
                             <button 
                               onClick={() => handleDeleteManutenzione(m.id)}
-                              className="p-2 text-zinc-400 hover:text-rose-600 hover:bg-white rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                              className="p-2 text-zinc-400 hover:text-rose-600 hover:bg-white rounded-lg transition-all sm:opacity-0 sm:group-hover:opacity-100"
                             >
                               <Trash2 size={16} />
                             </button>
