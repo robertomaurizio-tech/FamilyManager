@@ -625,3 +625,42 @@ export async function deleteFarmacoMalattia(id: number) {
   db.prepare('DELETE FROM farmaci_malattia WHERE id = ?').run(id);
   revalidatePath('/health');
 }
+
+// --- VEICOLI E MANUTENZIONI ---
+export async function getVeicoli() {
+  return db.prepare('SELECT * FROM veicoli ORDER BY nome ASC').all() as any[];
+}
+
+export async function addVeicolo(nome: string, targa?: string, tipo?: string) {
+  db.prepare('INSERT INTO veicoli (nome, targa, tipo) VALUES (?, ?, ?)').run(nome, targa || null, tipo || null);
+  revalidatePath('/vehicles');
+}
+
+export async function updateVeicolo(id: number, nome: string, targa?: string, tipo?: string) {
+  db.prepare('UPDATE veicoli SET nome = ?, targa = ?, tipo = ? WHERE id = ?').run(nome, targa || null, tipo || null, id);
+  revalidatePath('/vehicles');
+}
+
+export async function deleteVeicolo(id: number) {
+  db.prepare('DELETE FROM veicoli WHERE id = ?').run(id);
+  revalidatePath('/vehicles');
+}
+
+export async function getManutenzioni(idVeicolo: number) {
+  return db.prepare('SELECT * FROM manutenzioni WHERE id_veicolo = ? ORDER BY data DESC').all(idVeicolo) as any[];
+}
+
+export async function addManutenzione(idVeicolo: number, data: string, descrizione: string, km?: number, costo?: number) {
+  db.prepare('INSERT INTO manutenzioni (id_veicolo, data, descrizione, km, costo) VALUES (?, ?, ?, ?, ?)').run(idVeicolo, data, descrizione, km || null, costo || null);
+  revalidatePath('/vehicles');
+}
+
+export async function updateManutenzione(id: number, data: string, descrizione: string, km?: number, costo?: number) {
+  db.prepare('UPDATE manutenzioni SET data = ?, descrizione = ?, km = ?, costo = ? WHERE id = ?').run(data, descrizione, km || null, costo || null, id);
+  revalidatePath('/vehicles');
+}
+
+export async function deleteManutenzione(id: number) {
+  db.prepare('DELETE FROM manutenzioni WHERE id = ?').run(id);
+  revalidatePath('/vehicles');
+}
